@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BizMind{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'dashboard/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if user.is_authenticated %}
+        {% include "dashboard/partials/navbar_dashboard.html" %}
+    {% else %}
+        <nav class="dash-navbar">
+            <div class="dash-logo">
+                <a href="{% url 'core:home' %}">BizMind</a>
+            </div>
+            <div class="dash-user">
+                <a href="{% url 'accounts:login' %}">Login</a>
+                <a href="{% url 'accounts:signup' %}" class="btn btn-primary">Sign Up</a>
+            </div>
+        </nav>
+    {% endif %}
+
+    {% if messages %}
+        <div class="container message-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

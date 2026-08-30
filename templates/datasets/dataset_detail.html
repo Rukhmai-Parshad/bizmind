@@ -1,0 +1,79 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-header">
+        <h1>{{ dataset.name }}</h1>
+        <p class="subtitle">
+            {{ dataset.type|title }} dataset • Uploaded {{ dataset.uploaded_at|date:"d M Y" }}
+        </p>
+
+        {% if dataset.is_processed %}
+            <span class="badge badge-success">Processed</span>
+        {% else %}
+            <span class="badge badge-warning">Processing / Failed</span>
+        {% endif %}
+    </div>
+
+    <div class="divider"></div>
+
+    <h2>Generated Decisions</h2>
+
+    {% if decisions %}
+        {% for decision in decisions %}
+            <div class="card">
+                <h3>{{ decision.title }}</h3>
+
+                <p class="subtitle">
+                    Rule: {{ decision.rule_name }}
+                </p>
+
+                <div class="divider"></div>
+
+                <p>
+                    <strong>Recommendation</strong><br>
+                    {{ decision.recommendation }}
+                </p>
+
+                <p>
+                    <strong>Explanation</strong><br>
+                    {{ decision.explanation }}
+                </p>
+
+                <p><strong>Insight:</strong>
+                    <span class="muted">{{ decision.insight }}</span>
+                </p>
+
+                <p><strong>Action:</strong>
+                    <span class="action-text">{{ decision.action }}</span>
+                </p>
+
+                <small class="muted">
+                    Confidence: {{ decision.confidence }}
+                    <br>
+                    {{ decision.confidence_reason }}
+                </small>
+
+
+                <p><strong>Impact:</strong>
+                <span class="muted">
+                    {{ decision.impact }}
+                </span>
+                </p>
+
+            </div>
+        {% endfor %}
+    {% else %}
+        <p class="empty-text">No decisions generated for this dataset.</p>
+    {% endif %}
+
+    <div class="action-bar">
+        <a href="{% url 'datasets:dataset_list' %}" class="btn btn-primary">
+            ← Back to Datasets
+        </a>
+    </div>
+
+</div>
+{% endblock %}

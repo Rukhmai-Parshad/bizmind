@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-header">
+        <h1>Decisions</h1>
+        <p class="subtitle">
+            Generated insights for <strong>{{ dataset.name }}</strong>
+        </p>
+    </div>
+
+    {% if decisions %}
+        <div class="list">
+            {% for decision in decisions %}
+                <div class="card">
+
+                    <h3>{{ decision.title }}</h3>
+                    <small class="muted">
+                        {{ decision.domain|title }} • Rule: {{ decision.rule_name }}
+                    </small>
+
+                    <hr>
+
+                    <p><strong>Insight</strong><br>{{ decision.insight }}</p>
+
+                    <p><strong>Recommendation</strong><br>{{ decision.recommendation }}</p>
+
+                    <p><strong>Action</strong><br>{{ decision.action }}</p>
+
+                    <p><strong>Business Impact</strong><br>{{ decision.impact }}</p>
+
+                    <p>
+                        <strong>Confidence:</strong> {{ decision.confidence }}
+                        <span class="muted"
+                            title="Derived from data distribution strength and rule coverage">
+                            ⓘ
+                        </span>
+                    </p>
+
+
+                </div>
+
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-text">No decisions generated for this dataset.</p>
+    {% endif %}
+
+    <div class="action-bar">
+        <a href="{% url 'datasets:dataset_list' %}" class="btn btn-primary">
+            ← Back to Datasets
+        </a>
+    </div>
+
+</div>
+{% endblock %}

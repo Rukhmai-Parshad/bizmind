@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Login | BizMind{% endblock %}
+
+{% block content %}
+<div class="auth-card card">
+    <h2>Login</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+            <div class="form-field">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary form-submit">Login</button>
+    </form>
+
+    <p class="auth-switch">Don't have an account? <a href="{% url 'accounts:signup' %}">Create one</a></p>
+</div>
+{% endblock %}

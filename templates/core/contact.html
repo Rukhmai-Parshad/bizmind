@@ -1,0 +1,38 @@
+{% extends "core/base_public.html" %}
+{% block title %}Contact | BizMind{% endblock %}
+
+{% block content %}
+<section id="contact-hero">
+    <div class="contact-wrapper">
+        <div class="contact-info">
+            <span class="contact-badge">Contact BizMind</span>
+            <h1>
+                Let’s Talk
+                <span>Decision Intelligence</span>
+            </h1>
+            <p class="contact-intro">
+                Questions, feedback, or interested in the project?
+                Reach out directly.
+            </p>
+
+            <div class="contact-points">
+                <div class="point">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:support@bizmind.ai">support@bizmind.ai</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-form-card">
+            <h3>Explore the platform</h3>
+            <p>
+                Create an account to upload a CSV dataset and see
+                explainable business decisions generated from it.
+            </p>
+            <a href="{% url 'accounts:signup' %}" class="btn-primary">
+                Create Account
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

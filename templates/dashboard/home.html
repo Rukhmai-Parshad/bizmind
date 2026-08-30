@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | BizMind{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+
+    <div class="page-header">
+        <h1>Decision Intelligence Dashboard</h1>
+        <p class="subtitle">A data-driven overview of your business decisions.</p>
+    </div>
+
+    <div class="grid grid-4">
+        <div class="stat-card info">
+            <h3>Total Datasets</h3>
+            <p>{{ total_datasets }}</p>
+        </div>
+        <div class="stat-card success">
+            <h3>Processed</h3>
+            <p>{{ processed_datasets }}</p>
+        </div>
+        <div class="stat-card warning">
+            <h3>Pending</h3>
+            <p>{{ pending_datasets }}</p>
+        </div>
+        <div class="stat-card info">
+            <h3>Decisions</h3>
+            <p>{{ total_decisions }}</p>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <a href="{% url 'datasets:upload' %}" class="btn btn-success">Upload Dataset</a>
+        <a href="{% url 'datasets:dataset_list' %}" class="btn btn-primary">View Datasets</a>
+        <a href="{% url 'decisions:filtered' %}" class="btn btn-secondary">Explore Decisions</a>
+    </div>
+
+    {% if has_decisions %}
+        <section class="section">
+            <h2>Analytics</h2>
+
+            {{ confidence_labels|json_script:"confidence-labels" }}
+            {{ confidence_data|json_script:"confidence-data" }}
+            {{ dataset_labels|json_script:"dataset-labels" }}
+            {{ dataset_data|json_script:"dataset-data" }}
+            {{ domain_labels|json_script:"domain-labels" }}
+            {{ domain_data|json_script:"domain-data" }}
+
+            <div class="chart-grid">
+                <div class="card chart-card">
+                    <h3>Decision Confidence</h3>
+                    <div class="chart-box">
+                        <canvas id="confidenceChart"></canvas>
+                    </div>
+                    <div class="confidence-links">
+                        <a href="{% url 'decisions:filtered' %}?confidence=high" class="badge badge-success">High</a>
+                        <a href="{% url 'decisions:filtered' %}?confidence=medium" class="badge badge-warning">Medium</a>
+                        <a href="{% url 'decisions:filtered' %}?confidence=low" class="badge badge-danger">Low</a>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <h3>Decisions per Dataset</h3>
+                    <div class="chart-box">
+                        <canvas id="datasetChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <h3>Decisions by Domain</h3>
+                    <div class="chart-box">
+                        <canvas id="domainChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    <section class="section">
+        <h2>Recent Decisions</h2>
+
+        {% if recent_decisions %}
+            <div class="list">
+                {% for decision in recent_decisions %}
+                    <div class="list-item">
+                        <strong>{{ decision.title }}</strong>
+                        <p>{{ decision.recommendation }}</p>
+                        <small class="muted">
+                            {{ decision.domain|title }} · {{ decision.dataset.name }}
+                        </small>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-text">No decisions generated yet.</p>
+        {% endif %}
+    </section>
+
+    <section class="section">
+        <h2>Recent Datasets</h2>
+
+        {% if recent_datasets %}
+            <div class="list">
+                {% for dataset in recent_datasets %}
+                    <div class="list-item">
+                        <strong>{{ dataset.name }}</strong>
+                        <p class="subtitle">
+                            {{ dataset.type|title }} · {{ dataset.uploaded_at|date:"d M Y" }}
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-text">No datasets uploaded yet.</p>
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if has_decisions %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    Chart.defaults.color = "#aeb6d3";
+    Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: "#aeb6d3" } }
+        },
+        scales: {
+            x: { ticks: { color: "#8f98b8" }, grid: { color: "rgba(255,255,255,0.06)" } },
+            y: { ticks: { color: "#8f98b8" }, grid: { color: "rgba(255,255,255,0.06)" } }
+        }
+    };
+
+    new Chart(document.getElementById("confidenceChart"), {
+        type: "doughnut",
+        data: {
+            labels: JSON.parse(document.getElementById("confidence-labels").textContent),
+            datasets: [{
+                data: JSON.parse(document.getElementById("confidence-data").textContent),
+            }]
+        },
+        options: chartOptions
+    });
+
+    new Chart(document.getElementById("datasetChart"), {
+        type: "bar",
+        data: {
+            labels: JSON.parse(document.getElementById("dataset-labels").textContent),
+            datasets: [{
+                label: "Decisions",
+                data: JSON.parse(document.getElementById("dataset-data").textContent),
+            }]
+        },
+        options: chartOptions
+    });
+
+    new Chart(document.getElementById("domainChart"), {
+        type: "bar",
+        data: {
+            labels: JSON.parse(document.getElementById("domain-labels").textContent),
+            datasets: [{
+                label: "Decisions",
+                data: JSON.parse(document.getElementById("domain-data").textContent),
+            }]
+        },
+        options: chartOptions
+    });
+</script>
+{% endif %}
+{% endblock %}

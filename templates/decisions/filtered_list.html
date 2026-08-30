@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load decision_extras %}
+
+{% block content %}
+
+<!-- ===================== -->
+<!-- PAGE HEADER -->
+<!-- ===================== -->
+<div class="page-header">
+    <h1>Filtered Decisions</h1>
+
+    <p class="subtitle">
+        Decisions derived from your data insights
+    </p>
+
+    <div class="filter-summary">
+        {% if selected_domain %}
+            <span class="pill pill-domain">
+                Domain: {{ selected_domain|title }}
+            </span>
+        {% endif %}
+
+        {% if selected_confidence %}
+            <span class="pill pill-confidence">
+                Confidence: {{ selected_confidence|title }}
+            </span>
+        {% endif %}
+    </div>
+
+    <div class="action-bar">
+        <a href="{% url 'dashboard:home' %}" class="btn btn-secondary">
+            ← Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- ===================== -->
+<!-- DECISION LIST -->
+<!-- ===================== -->
+{% if decisions %}
+    <div class="decision-grid">
+
+        {% for d in decisions %}
+            <div class="decision-card">
+
+                <!-- TITLE -->
+                <h3 class="decision-title">
+                    {{ d.title }}
+                </h3>
+
+                <!-- META INFO -->
+                <div class="decision-meta">
+
+                    <span class="badge {{ d.confidence|confidence_badge }}">
+                        {{ d.confidence|confidence_label }}
+                    </span>
+
+                    <span class="meta-text">
+                        Domain: <strong>{{ d.domain|title }}</strong>
+                    </span>
+
+                </div>
+
+                <!-- RECOMMENDATION -->
+                <div class="decision-section">
+                    <h4>Recommendation</h4>
+                    <p>{{ d.recommendation }}</p>
+                </div>
+
+                <!-- IMPACT -->
+                <div class="decision-section impact">
+                    <h4>Business Impact</h4>
+                    <p>{{ d.impact }}</p>
+                </div>
+
+                <!-- FOOTER -->
+                <div class="decision-footer">
+                    <small class="muted">
+                        Based on dataset: <strong>{{ d.dataset.name }}</strong>
+                    </small>
+                </div>
+
+            </div>
+        {% endfor %}
+
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h3>No decisions found</h3>
+        <p>
+            Try adjusting filters or upload more datasets to generate insights.
+        </p>
+
+        <a href="{% url 'datasets:upload' %}" class="btn btn-primary">
+            Upload Dataset
+        </a>
+    </div>
+{% endif %}
+
+{% endblock %}

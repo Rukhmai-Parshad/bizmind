@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Dataset | BizMind{% endblock %}
+
+{% block content %}
+<div class="container upload-page">
+    <div class="page-header">
+        <h1>Upload New Dataset</h1>
+        <p class="subtitle">Upload a CSV file to generate explainable business decisions.</p>
+    </div>
+
+    <div class="upload-layout">
+        <div class="card upload-card">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="form-field">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}<small class="field-help">{{ field.help_text }}</small>{% endif %}
+                        {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                    </div>
+                {% endfor %}
+
+                <div class="action-bar">
+                    <button type="submit" class="btn btn-success">Upload Dataset</button>
+                    <a href="{% url 'datasets:dataset_list' %}" class="btn btn-primary">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+        <aside class="card schema-card">
+            <h2>CSV Requirements</h2>
+            <p class="subtitle">Required columns for the selected dataset type:</p>
+
+            <div class="schema-block" data-schema="sales">
+                <h3>Sales</h3>
+                <code>date, product, region, units_sold, unit_price</code>
+            </div>
+            <div class="schema-block" data-schema="marketing">
+                <h3>Marketing</h3>
+                <code>date, campaign, channel, impressions, clicks, conversions, spend, revenue</code>
+            </div>
+            <div class="schema-block" data-schema="finance">
+                <h3>Finance</h3>
+                <code>date, category, department, amount, type</code>
+                <small><strong>type:</strong> income or expense</small>
+            </div>
+
+            <p class="schema-note">Extra columns are allowed. Required columns must be present and contain valid values.</p>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const typeField = document.getElementById("id_type");
+    const schemas = document.querySelectorAll("[data-schema]");
+
+    function updateSchema() {
+        const selected = typeField ? typeField.value : "";
+        schemas.forEach((schema) => {
+            schema.hidden = schema.dataset.schema !== selected;
+        });
+    }
+
+    if (typeField) {
+        typeField.addEventListener("change", updateSchema);
+        updateSchema();
+    }
+</script>
+{% endblock %}

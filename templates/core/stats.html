@@ -1,0 +1,116 @@
+{% extends "core/base_public.html" %}
+{% block title %}Platform Stats | BizMind{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section id="stats-hero">
+    <span class="stats-badge">Platform Insights</span>
+    <h1>
+        Data in Action.<br>
+        <span>Decisions with Confidence.</span>
+    </h1>
+    <p>
+        See how BizMind converts business data into
+        explainable decisions and measurable signals.
+    </p>
+</section>
+
+<!-- CORE METRICS -->
+<section class="stats-section">
+    <div class="stats-grid">
+
+        <div class="stat-card info">
+            <h4>Total Users</h4>
+            <p>{{ total_users }}</p>
+            <span>Active decision makers</span>
+        </div>
+
+        <div class="stat-card success">
+            <h4>Datasets Processed</h4>
+            <p>{{ total_datasets }}</p>
+            <span>Across multiple domains</span>
+        </div>
+
+        <div class="stat-card warning">
+            <h4>Decisions Generated</h4>
+            <p>{{ total_decisions }}</p>
+            <span>rule-backed outcomes</span>
+        </div>
+
+    </div>
+</section>
+
+<!-- CONFIDENCE -->
+<section class="confidence-section">
+    <h2>Decision Confidence Distribution</h2>
+
+    <div class="confidence-grid">
+        <div class="confidence-card high">
+            <h3>High Confidence</h3>
+            <p>{{ confidence_high }}</p>
+            <span>Decisions</span>
+        </div>
+
+        <div class="confidence-card medium">
+            <h3>Medium Confidence</h3>
+            <p>{{ confidence_medium }}</p>
+            <span>Decisions</span>
+        </div>
+
+        <div class="confidence-card low">
+            <h3>Low Confidence</h3>
+            <p>{{ confidence_low }}</p>
+            <span>Decisions</span>
+        </div>
+    </div>
+</section>
+
+<!-- DOMAIN USAGE -->
+<section class="domain-section">
+    <h2>Domain Intelligence Usage</h2>
+
+    <div class="domain-grid">
+        {% for item in domain_usage %}
+            <div class="domain-card">
+                {{ item.domain|title }} — {{ item.count }} decisions
+            </div>
+        {% empty %}
+            <div class="domain-card">No decisions generated yet.</div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- PLATFORM TRUST -->
+<section class="stats-impact">
+    <div class="impact-box">
+        <h2>Built for Reliability & Clarity</h2>
+
+        <div class="impact-grid">
+            <div>
+                <h3>Explainable Decisions</h3>
+                <p>Every decision includes reasoning.</p>
+            </div>
+
+            <div>
+                <h3>Confidence Scoring</h3>
+                <p>See the rule-based signal strength behind each decision.</p>
+            </div>
+
+            <div>
+                <h3>Secure by Design</h3>
+                <p>Your datasets remain private.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="stats-cta">
+    <h2>Ready to See BizMind in Action?</h2>
+    <a href="{% url 'accounts:login' %}" class="btn-primary">
+        Explore Dashboard
+    </a>
+</section>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-header">
+        <h1>Your Datasets</h1>
+        <p class="subtitle">Uploaded and processed datasets</p>
+    </div>
+
+    <div class="action-bar">
+        <a href="{% url 'datasets:upload' %}" class="btn btn-success">
+            + Upload New Dataset
+        </a>
+    </div>
+
+    {% if datasets %}
+        <div class="list">
+            {% for ds in datasets %}
+                <div class="list-item">
+                    <strong>{{ ds.name }}</strong>
+
+                    <p class="subtitle">
+                        {{ ds.type|title }} • {{ ds.uploaded_at|date:"d M Y" }}
+                    </p>
+
+                    {% if ds.is_processed %}
+                        <span class="badge badge-success">Processed</span>
+                    {% else %}
+                        <span class="badge badge-warning">Pending</span>
+                    {% endif %}
+
+                    <div class="list-item-action">
+                        <a href="{% url 'datasets:dataset_detail' ds.id %}">
+                            View Decisions →
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-text">No datasets uploaded yet.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

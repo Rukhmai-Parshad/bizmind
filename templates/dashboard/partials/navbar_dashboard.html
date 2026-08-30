@@ -1,0 +1,16 @@
+<nav class="dash-navbar">
+    <div class="dash-logo">
+        <a href="{% url 'dashboard:home' %}">BizMind</a>
+    </div>
+
+    <ul class="dash-links">
+        <li><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+        <li><a href="{% url 'datasets:dataset_list' %}">Datasets</a></li>
+        <li><a href="{% url 'decisions:filtered' %}">Decisions</a></li>
+    </ul>
+
+    <div class="dash-user">
+        <span>{{ request.user.email }}</span>
+        <a href="{% url 'accounts:logout' %}" class="logout-btn">Logout</a>
+    </div>
+</nav>
