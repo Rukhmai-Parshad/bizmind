@@ -1,208 +1,448 @@
 # BizMind
 
-BizMind is a Django-based decision intelligence platform that turns structured business datasets into explainable, rule-backed recommendations.
+BizMind is a Django-based Business Decision Intelligence Platform that transforms business datasets into structured insights and actionable decisions.
 
-## What it does
+It allows users to upload Sales, Marketing, and Finance datasets, process the data, analyze business performance, and generate decision recommendations through a centralized dashboard.
 
-1. A user creates an account and signs in.
-2. The user uploads a CSV for Sales, Marketing, or Finance.
-3. BizMind validates and processes the file with Pandas.
-4. Processed records are stored in PostgreSQL/SQLite through Django ORM.
-5. Domain-specific business rules evaluate the data.
-6. The decision engine generates explainable decisions with confidence scores.
-7. The dashboard presents decision metrics, recent activity, and interactive charts.
+## Live Demo
 
-## Architecture
+[Live Application →](https://bizmind-4un7.onrender.com)
+
+---
+
+## Overview
+
+Businesses often have large amounts of data but struggle to turn that data into clear decisions.
+
+BizMind provides a centralized workflow:
+
+**Dataset Upload → Data Processing → Analysis → Insights → Decisions**
+
+The platform separates business domains into Sales, Marketing, and Finance and applies domain-specific analysis and decision rules to generate meaningful recommendations.
+
+---
+
+## Key Features
+
+### Authentication
+
+- User registration and login
+- Secure authentication
+- User-specific dataset management
+- Logout functionality
+
+### Dataset Management
+
+- Upload CSV datasets
+- Dataset type classification
+- Dataset validation
+- Dataset processing
+- Dataset history and details
+- User-specific dataset access
+
+### Sales Analysis
+
+- Process sales datasets
+- Calculate revenue
+- Analyze products and regions
+- Generate sales-related insights
+- Apply decision rules
+
+### Marketing Analysis
+
+- Process marketing datasets
+- Analyze impressions, clicks, and conversions
+- Analyze campaign and channel performance
+- Calculate marketing performance metrics
+- Generate marketing decisions
+
+### Finance Analysis
+
+- Process income and expense datasets
+- Analyze financial transactions
+- Analyze departments and categories
+- Identify financial patterns
+- Generate finance-related decisions
+
+### Decision Intelligence
+
+BizMind converts processed business data into structured decisions.
+
+Each decision can include:
+
+- Business domain
+- Action
+- Insight
+- Impact
+- Confidence
+- Confidence reason
+
+### Dashboard
+
+The dashboard provides a centralized view of:
+
+- Uploaded datasets
+- Business domains
+- Key metrics
+- Generated decisions
+- Business insights
+
+---
+
+## Application Workflow
 
 ```text
-Browser
-   ↓
-Django URL
-   ↓
-View
-   ↓
-Form / Service
-   ↓
-Pandas CSV Processing
-   ↓
-Django ORM
-   ↓
-Database
-   ↓
+User
+  ↓
+Authentication
+  ↓
+Upload Dataset
+  ↓
+Dataset Validation
+  ↓
+Data Processing
+  ↓
+Domain Analysis
+  ↓
 Decision Engine
-   ↓
-Domain Rules
-   ↓
+  ↓
+Insights & Recommendations
+  ↓
 Dashboard
 ```
 
-### Apps
+---
 
-- `accounts` — custom email-based user model and authentication
-- `datasets` — CSV upload, validation, and processing orchestration
-- `sales` — sales records, queries, and rules
-- `marketing` — marketing records, queries, and rules
-- `finance` — finance records, queries, and rules
-- `decisions` — decision model and central rule engine
-- `dashboard` — user-specific metrics and analytics
-- `core` — public-facing pages
+## Project Architecture
 
-## Decision Engine
+```text
+BizMind/
+│
+├── accounts/              # Authentication and user management
+├── bizmind/               # Main Django project configuration
+├── core/                  # Public pages and common functionality
+├── dashboard/             # Dashboard functionality
+├── datasets/              # Dataset upload, validation and processing
+├── sales/                 # Sales models, analysis and rules
+├── marketing/             # Marketing models, analysis and rules
+├── finance/               # Finance models, analysis and rules
+├── decisions/             # Decision engine and decision management
+│
+├── static/
+│   ├── css/
+│   ├── dashboard/
+│   └── img/
+│
+├── templates/
+│   ├── accounts/
+│   ├── core/
+│   ├── dashboard/
+│   ├── datasets/
+│   └── decisions/
+│
+├── manage.py
+├── requirements.txt
+├── render.yaml
+├── build.sh
+├── Procfile
+├── .env.example
+└── README.md
+```
 
-BizMind currently uses deterministic, explainable business rules rather than a machine-learning model.
+---
 
-Examples:
+## Technology Stack
 
-- Sales revenue below a configured threshold
-- Underperforming sales region
-- Dominant/top-performing product
-- Low marketing CTR
-- Poor marketing ROAS
-- Underperforming marketing channel
-- Net loss
-- High expense-to-income ratio
-- Highest expense category
+### Backend
 
-Each generated decision contains:
+- Python
+- Django
+- Django ORM
 
-- domain
-- rule name
-- explanation
-- recommendation
-- action
-- business impact
-- confidence score
+### Data Processing
 
-## CSV formats
+- Pandas
+- NumPy
+
+### Database
+
+- SQLite for local development
+- PostgreSQL for production
+
+### Frontend
+
+- HTML5
+- CSS3
+- JavaScript
+- Django Templates
+
+### Deployment
+
+- Render
+- Gunicorn
+- WhiteNoise
+- PostgreSQL
+
+### Development Tools
+
+- Git
+- GitHub
+- VS Code
+
+---
+
+## Data Domains
+
+BizMind currently supports three major business domains.
 
 ### Sales
 
-Required columns:
+Expected fields:
 
 ```text
-date, product, region, units_sold, unit_price
+date
+product
+region
+units_sold
+unit_price
+revenue
 ```
 
 ### Marketing
 
-Required columns:
+Expected fields:
 
 ```text
-date, campaign, channel, impressions, clicks, conversions, spend, revenue
+date
+campaign
+channel
+impressions
+clicks
+conversions
+spend
+revenue
 ```
 
 ### Finance
 
-Required columns:
+Expected fields:
 
 ```text
-date, category, department, amount, type
+date
+category
+department
+amount
+type
 ```
 
-For Finance, `type` must be `income` or `expense`.
+Where `type` represents:
 
-## Local setup
+```text
+income
+expense
+```
 
-### 1. Clone the repository
+---
+
+## Decision Engine
+
+The decision engine converts processed business metrics into actionable recommendations.
+
+The general flow is:
+
+```text
+Raw Data
+   ↓
+Validation
+   ↓
+Processing
+   ↓
+Business Metrics
+   ↓
+Domain Rules
+   ↓
+Decision
+   ↓
+Confidence & Impact
+```
+
+The decision layer is separated from the individual business domains so that domain-specific analysis and decision generation remain maintainable.
+
+---
+
+## Database Design
+
+The application uses Django models and relationships to connect uploaded datasets with their corresponding business records.
+
+```text
+User
+ │
+ └── Dataset
+       │
+       ├── SalesRecord
+       ├── MarketingRecord
+       ├── FinanceRecord
+       └── Decision
+```
+
+This structure allows each uploaded dataset to maintain its own processed records and generated decisions.
+
+---
+
+## Local Development
+
+### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
-cd "Unified Decision Intelligence Platform/bizmind"
+git clone https://github.com/Rukhmai-Parshad/bizmind.git
+cd bizmind
 ```
 
-### 2. Create a virtual environment
+### 2. Create a Virtual Environment
+
+#### Windows
 
 ```bash
 python -m venv venv
-```
-
-Windows:
-
-```bash
 venv\Scripts\activate
 ```
 
-### 3. Install dependencies
+#### macOS/Linux
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configure environment variables
+### 4. Configure Environment Variables
 
-Copy `.env.example` to `.env` and set a strong `SECRET_KEY`.
+Create a `.env` file based on `.env.example`.
 
-For local development:
+Example:
 
 ```text
+SECRET_KEY=your-secret-key
 DEBUG=True
-ALLOWED_HOSTS=127.0.0.1,localhost
-DATABASE_URL=sqlite:///db.sqlite3
 ```
 
-### 5. Run migrations
+### 5. Run Migrations
 
 ```bash
 python manage.py migrate
 ```
 
-### 6. Create an admin account
-
-```bash
-python manage.py createsuperuser
-```
-
-### 7. Run the application
+### 6. Start the Development Server
 
 ```bash
 python manage.py runserver
 ```
 
-## Production deployment on Render
+Open:
 
-The repository includes `render.yaml` for a Render web service plus PostgreSQL database.
-
-The deployment configuration:
-
-- Python 3.13.5
-- Django production settings
-- PostgreSQL
-- WhiteNoise for static files
-- Gunicorn
-- `collectstatic` + migrations during build
-- HTTPS/security settings when `DEBUG=False`
-
-For a portfolio/demo deployment, create a new Render Blueprint from the repository and apply the included `render.yaml`.
-
-The free Render web and Postgres plans are suitable for a demo, but free instances have service/database limitations and are not intended for production workloads.
-
-## Security notes
-
-- Secrets are supplied through environment variables.
-- `.env` is not committed.
-- CSRF protection remains enabled.
-- Production cookies are marked secure.
-- HTTPS redirect and HSTS are enabled in production.
-- Uploaded CSV files are validated before processing.
-- User data is scoped to the authenticated user.
-- Processed raw uploads are removed after successful processing because the application does not expose raw-file downloads.
-
-## Testing
-
-Run:
-
-```bash
-python manage.py test
+```text
+http://127.0.0.1:8000/
 ```
 
-## Tech stack
+---
 
-- Python
-- Django
-- Django ORM
-- Pandas
-- PostgreSQL / SQLite
-- Chart.js
-- HTML/CSS/JavaScript
+## Production Deployment
+
+BizMind is deployed on **Render**.
+
+Production setup includes:
+
+- Django application
 - Gunicorn
-- WhiteNoise
+- PostgreSQL
+- WhiteNoise for static files
+- Environment-based configuration
+- Automated deployment from GitHub
+
+Deployment configuration is defined in:
+
+```text
+render.yaml
+build.sh
+Procfile
+```
+
+### Live Application
+
+[https://bizmind-4un7.onrender.com](https://bizmind-4un7.onrender.com)
+
+---
+
+## Security
+
+Production configuration keeps sensitive values outside the source code through environment variables.
+
+Sensitive files and development artifacts are excluded using `.gitignore`.
+
+Examples:
+
+```text
+.env
+venv/
+*.sqlite3
+media/
+staticfiles/
+__pycache__/
+```
+
+---
+
+## Future Improvements
+
+Planned improvements include:
+
+- Django REST Framework APIs
+- Advanced filtering and search
+- More business decision rules
+- Automated testing
+- Improved analytics
+- Role-based access control
+- Advanced dashboard visualizations
+- Production monitoring
+- More intelligent recommendation capabilities
+
+---
+
+## Project Goal
+
+The goal of BizMind is to demonstrate how a Django application can combine:
+
+```text
+Web Development
+       +
+Database Management
+       +
+Data Processing
+       +
+Business Logic
+       +
+Decision Intelligence
+```
+
+into a complete end-to-end business application.
+
+---
+
+## Author
+
+**Rukhmai Parshad**
+
+Full Stack Python / Django Developer
+
+[GitHub Profile →](https://github.com/Rukhmai-Parshad)
+
+---
+
+## License
+
+This project is developed for learning, portfolio, and demonstration purposes.
