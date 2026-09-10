@@ -1,132 +1,253 @@
 # BizMind
 
-BizMind is a Django-based Business Decision Intelligence Platform that transforms business datasets into structured insights and actionable decisions.
+**BizMind is a Django-based Business Decision Intelligence Platform that transforms raw business datasets into structured analysis, actionable insights, and data-driven decisions.**
 
-It allows users to upload Sales, Marketing, and Finance datasets, process the data, analyze business performance, and generate decision recommendations through a centralized dashboard.
+Built as an end-to-end **Python + Django + SQL + Data Processing + REST API** application, BizMind demonstrates how business data can move from dataset ingestion and validation to domain analysis, decision rules, recommendations, and a centralized dashboard.
 
-## Live Demo
+**Core Workflow:**  
+`Dataset Upload → Validation → Data Processing → Domain Analysis → Decision Engine → Insights & Recommendations`
 
-[Live Application →](https://bizmind-4un7.onrender.com)
+## Live Application
 
----
+**Live Demo:**  
+https://bizmind-4un7.onrender.com
 
-## Overview
-
-Businesses often have large amounts of data but struggle to turn that data into clear decisions.
-
-BizMind provides a centralized workflow:
-
-**Dataset Upload → Data Processing → Analysis → Insights → Decisions**
-
-The platform separates business domains into Sales, Marketing, and Finance and applies domain-specific analysis and decision rules to generate meaningful recommendations.
+**Interactive API Documentation (Swagger):**  
+https://bizmind-4un7.onrender.com/api/docs/
 
 ---
 
-## Key Features
+## Why BizMind?
 
-### Authentication
+Many business applications can store data, while analytics tools can display metrics. BizMind focuses on the layer between **data and action**.
+
+It provides a structured workflow for:
+
+- Ingesting business datasets
+- Validating uploaded data
+- Processing domain-specific records
+- Calculating business metrics
+- Applying business decision rules
+- Generating structured insights
+- Producing recommendations with impact and confidence information
+- Presenting results through a centralized Django dashboard
+- Exposing processed data through a secured REST API
+
+The project is designed to demonstrate practical backend engineering, database modeling, data processing, business logic, authentication, API development, and production deployment in one application.
+
+---
+
+## Key Capabilities
+
+### 🔐 Authentication & User Management
 
 - User registration and login
-- Secure authentication
-- User-specific dataset management
+- Custom Django user model
+- Email-based authentication
+- Role-based user structure
+- Secure session authentication for the web application
+- JWT authentication for REST APIs
+- Authenticated API access
+- User-specific data isolation
 - Logout functionality
 
-### Dataset Management
+### 📂 Dataset Management
 
-- Upload CSV datasets
-- Dataset type classification
+- CSV dataset upload
+- Sales, Marketing, and Finance dataset classification
 - Dataset validation
-- Dataset processing
+- Automatic dataset processing
+- Dataset-specific processing status
 - Dataset history and details
-- User-specific dataset access
+- Duplicate dataset validation
+- User-owned dataset management
+- Processing error handling
 
-### Sales Analysis
+### 📊 Sales Intelligence
 
-- Process sales datasets
-- Calculate revenue
-- Analyze products and regions
-- Generate sales-related insights
-- Apply decision rules
+- Sales dataset processing
+- Revenue calculation and analysis
+- Product performance analysis
+- Regional performance analysis
+- Sales performance insights
+- Domain-specific decision rules
+- Actionable sales recommendations
 
-### Marketing Analysis
+### 📣 Marketing Intelligence
 
-- Process marketing datasets
-- Analyze impressions, clicks, and conversions
-- Analyze campaign and channel performance
-- Calculate marketing performance metrics
-- Generate marketing decisions
+- Marketing dataset processing
+- Campaign performance analysis
+- Channel performance analysis
+- Impressions, clicks, and conversions analysis
+- Marketing performance metrics
+- Domain-specific marketing insights
+- Marketing decision generation
 
-### Finance Analysis
+### 💰 Finance Intelligence
 
-- Process income and expense datasets
-- Analyze financial transactions
-- Analyze departments and categories
-- Identify financial patterns
-- Generate finance-related decisions
+- Income and expense processing
+- Financial transaction analysis
+- Department-level analysis
+- Category-level analysis
+- Financial pattern identification
+- Finance-specific business rules
+- Financial decision recommendations
 
-### Decision Intelligence
+### 🧠 Decision Intelligence
 
-BizMind converts processed business data into structured decisions.
+BizMind separates **analysis** from **decision generation**.
 
-Each decision can include:
+Processed business data is evaluated through domain-specific rules to generate structured decisions containing information such as:
 
-- Business domain
-- Action
+- Domain
+- Title
 - Insight
+- Recommendation
+- Explanation
+- Action
 - Impact
 - Confidence
 - Confidence reason
 
-### Dashboard
+This creates a clear separation between:
 
-The dashboard provides a centralized view of:
+`Data → Metrics → Business Rules → Decision`
+
+### ⚙️ REST API
+
+BizMind includes a production-oriented REST API built with **Django REST Framework**.
+
+The API provides:
+
+- Dataset CRUD operations
+- Sales record CRUD operations
+- Marketing record CRUD operations
+- Finance record CRUD operations
+- Read-only decision endpoints
+- JWT access-token authentication
+- JWT refresh-token authentication
+- Authentication-protected endpoints
+- Ownership-based data isolation
+- Request validation
+- Pagination
+- Dataset-based filtering
+- OpenAPI schema generation
+- Interactive Swagger documentation
+
+### 📈 Centralized Dashboard
+
+The Django dashboard provides a centralized business view of:
 
 - Uploaded datasets
 - Business domains
-- Key metrics
+- Key business metrics
 - Generated decisions
 - Business insights
+- Recommendations
 
 ---
 
-## Application Workflow
+# Application Architecture
+
+```text
+                         ┌─────────────────────┐
+                         │       User          │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Authentication      │
+                         │ Django + JWT API    │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Dataset Management  │
+                         │ Upload + Validation │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Data Processing     │
+                         │ Pandas + Django ORM │
+                         └──────────┬──────────┘
+                                    │
+                     ┌──────────────┼──────────────┐
+                     ▼              ▼              ▼
+                 ┌────────┐    ┌─────────┐    ┌─────────┐
+                 │ Sales  │    │Marketing│    │ Finance │
+                 └────┬───┘    └────┬────┘    └────┬────┘
+                      │              │              │
+                      └──────────────┼──────────────┘
+                                     ▼
+                         ┌─────────────────────┐
+                         │ Business Metrics    │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Decision Engine     │
+                         │ Domain Rules        │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Insights &          │
+                         │ Recommendations     │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ Django Dashboard    │
+                         │ + REST API          │
+                         └─────────────────────┘
+```
+
+---
+
+# Application Workflow
 
 ```text
 User
   ↓
 Authentication
   ↓
-Upload Dataset
+Upload Business Dataset
   ↓
 Dataset Validation
   ↓
-Data Processing
+Automatic Data Processing
   ↓
-Domain Analysis
+Domain-Specific Analysis
   ↓
-Decision Engine
+Business Metrics
   ↓
-Insights & Recommendations
+Decision Rules
   ↓
-Dashboard
+Generated Decision
+  ↓
+Insight + Recommendation
+  ↓
+Dashboard / REST API
 ```
 
 ---
 
-## Project Architecture
+# Project Architecture
 
 ```text
 BizMind/
 │
-├── accounts/              # Authentication and user management
-├── bizmind/               # Main Django project configuration
-├── core/                  # Public pages and common functionality
-├── dashboard/             # Dashboard functionality
-├── datasets/              # Dataset upload, validation and processing
-├── sales/                 # Sales models, analysis and rules
-├── marketing/             # Marketing models, analysis and rules
-├── finance/               # Finance models, analysis and rules
-├── decisions/             # Decision engine and decision management
+├── accounts/              # Custom user model, authentication and user management
+├── bizmind/               # Django project configuration, settings and URLs
+├── core/                  # Public pages and shared functionality
+├── dashboard/             # Business dashboard and metrics presentation
+├── datasets/              # Dataset upload, validation and processing services
+├── sales/                 # Sales models, analysis and business rules
+├── marketing/             # Marketing models, analysis and business rules
+├── finance/               # Finance models, analysis and business rules
+├── decisions/             # Decision models and decision-generation logic
+├── api/                   # DRF serializers, viewsets and API routing
 │
 ├── static/
 │   ├── css/
@@ -151,53 +272,64 @@ BizMind/
 
 ---
 
-## Technology Stack
+# Technology Stack
 
-### Backend
+## Backend
 
-- Python
-- Django
-- Django ORM
+- **Python**
+- **Django 5.2**
+- **Django ORM**
+- **Django REST Framework**
 
-### Data Processing
+## Data Processing
 
-- Pandas
-- NumPy
+- **Pandas**
+- **NumPy**
 
-### Database
+## API & Authentication
 
-- SQLite for local development
-- PostgreSQL for production
+- **Django REST Framework**
+- **Simple JWT**
+- **drf-spectacular**
+- **OpenAPI 3**
+- **Swagger UI**
 
-### Frontend
+## Database
 
-- HTML5
-- CSS3
-- JavaScript
-- Django Templates
+- **SQLite** for local development
+- **PostgreSQL** for production
 
-### Deployment
+## Frontend
 
-- Render
-- Gunicorn
-- WhiteNoise
-- PostgreSQL
+- **HTML5**
+- **CSS3**
+- **JavaScript**
+- **Django Templates**
 
-### Development Tools
+## Production & Deployment
 
-- Git
-- GitHub
-- VS Code
+- **Render**
+- **Gunicorn**
+- **WhiteNoise**
+- **PostgreSQL**
+- Environment-based configuration
+- Automated GitHub deployment
+
+## Development Tools
+
+- **Git**
+- **GitHub**
+- **VS Code**
 
 ---
 
-## Data Domains
+# Data Domains
 
-BizMind currently supports three major business domains.
+BizMind currently supports three business domains.
 
-### Sales
+## Sales
 
-Expected fields:
+Expected CSV fields:
 
 ```text
 date
@@ -208,9 +340,11 @@ unit_price
 revenue
 ```
 
-### Marketing
+Sales processing supports product-level and region-level performance analysis and generates sales-related decisions.
 
-Expected fields:
+## Marketing
+
+Expected CSV fields:
 
 ```text
 date
@@ -223,9 +357,11 @@ spend
 revenue
 ```
 
-### Finance
+Marketing processing supports campaign and channel performance analysis using metrics such as impressions, clicks, conversions, spend, and revenue.
 
-Expected fields:
+## Finance
+
+Expected CSV fields:
 
 ```text
 date
@@ -235,44 +371,175 @@ amount
 type
 ```
 
-Where `type` represents:
+The `type` field supports:
 
 ```text
 income
 expense
 ```
 
+Finance processing supports transaction, department, and category-level analysis.
+
 ---
 
-## Decision Engine
+# Decision Engine
 
-The decision engine converts processed business metrics into actionable recommendations.
+The **Decision Engine** is one of the core backend components of BizMind.
 
-The general flow is:
+Instead of stopping at data processing or dashboard metrics, BizMind applies business rules to processed information and converts analytical results into structured decisions.
+
+## Decision Pipeline
 
 ```text
-Raw Data
-   ↓
+Raw Dataset
+     ↓
 Validation
-   ↓
-Processing
-   ↓
-Business Metrics
-   ↓
-Domain Rules
-   ↓
-Decision
-   ↓
-Confidence & Impact
+     ↓
+Data Processing
+     ↓
+Business Records
+     ↓
+Domain Metrics
+     ↓
+Decision Rules
+     ↓
+Decision Generation
+     ↓
+Insight
+     ↓
+Recommendation
+     ↓
+Impact + Confidence
 ```
 
-The decision layer is separated from the individual business domains so that domain-specific analysis and decision generation remain maintainable.
+The decision layer is separated from individual business domains so that domain-specific analysis and decision generation remain organized and maintainable.
 
 ---
 
-## Database Design
+# REST API
 
-The application uses Django models and relationships to connect uploaded datasets with their corresponding business records.
+BizMind exposes its core business data through a secured REST API.
+
+## API Base URL
+
+```text
+https://bizmind-4un7.onrender.com/api/
+```
+
+## Authentication
+
+### Obtain JWT Token
+
+```http
+POST /api/auth/token/
+```
+
+### Refresh JWT Token
+
+```http
+POST /api/auth/token/refresh/
+```
+
+## Dataset Endpoints
+
+```http
+GET    /api/datasets/
+POST   /api/datasets/
+GET    /api/datasets/{id}/
+PATCH  /api/datasets/{id}/
+DELETE /api/datasets/{id}/
+```
+
+## Sales Endpoints
+
+```http
+GET    /api/sales/
+POST   /api/sales/
+GET    /api/sales/{id}/
+PATCH  /api/sales/{id}/
+DELETE /api/sales/{id}/
+```
+
+## Marketing Endpoints
+
+```http
+GET    /api/marketing/
+POST   /api/marketing/
+GET    /api/marketing/{id}/
+PATCH  /api/marketing/{id}/
+DELETE /api/marketing/{id}/
+```
+
+## Finance Endpoints
+
+```http
+GET    /api/finance/
+POST   /api/finance/
+GET    /api/finance/{id}/
+PATCH  /api/finance/{id}/
+DELETE /api/finance/{id}/
+```
+
+## Decision Endpoints
+
+Decisions are read-only through the API because they are generated by the application's decision engine.
+
+```http
+GET /api/decisions/
+GET /api/decisions/{id}/
+```
+
+## Filtering
+
+Business records can be filtered by dataset:
+
+```text
+/api/sales/?dataset=5
+/api/marketing/?dataset=5
+/api/finance/?dataset=5
+```
+
+## Pagination
+
+API list endpoints use page-based pagination to keep record retrieval manageable.
+
+Example:
+
+```text
+/api/sales/?page=1
+```
+
+## Interactive API Documentation
+
+Explore and test the API through Swagger UI:
+
+**https://bizmind-4un7.onrender.com/api/docs/**
+
+---
+
+# API Design Highlights
+
+The REST API follows practical backend development patterns including:
+
+- Resource-oriented endpoints
+- ModelSerializer-based serialization
+- ViewSet-based CRUD operations
+- JWT authentication
+- Authenticated API access
+- Ownership validation
+- User-scoped querysets
+- Request validation
+- Pagination
+- Query-parameter filtering
+- Read-only generated decisions
+- OpenAPI schema generation
+- Interactive Swagger documentation
+
+---
+
+# Database Design
+
+BizMind uses Django ORM relationships to connect users, uploaded datasets, processed records, and generated decisions.
 
 ```text
 User
@@ -285,106 +552,29 @@ User
        └── Decision
 ```
 
-This structure allows each uploaded dataset to maintain its own processed records and generated decisions.
+This relationship structure ensures that processed business records and generated decisions remain associated with their source dataset.
 
 ---
 
-## Local Development
+# Data Isolation & Security
 
-### 1. Clone the Repository
+Security and data ownership are treated as backend concerns rather than only frontend restrictions.
 
-```bash
-git clone https://github.com/Rukhmai-Parshad/bizmind.git
-cd bizmind
-```
+BizMind implements:
 
-### 2. Create a Virtual Environment
+- Authentication-protected API endpoints
+- JWT-based API authentication
+- User-scoped dataset querysets
+- Ownership validation for related records
+- User-specific dataset access
+- Environment-based secret management
+- Production HTTPS configuration
+- Secure cookies in production
+- CSRF trusted-origin configuration
+- Secure HTTP headers
+- Sensitive file exclusion through `.gitignore`
 
-#### Windows
-
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
-#### macOS/Linux
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables
-
-Create a `.env` file based on `.env.example`.
-
-Example:
-
-```text
-SECRET_KEY=your-secret-key
-DEBUG=True
-```
-
-### 5. Run Migrations
-
-```bash
-python manage.py migrate
-```
-
-### 6. Start the Development Server
-
-```bash
-python manage.py runserver
-```
-
-Open:
-
-```text
-http://127.0.0.1:8000/
-```
-
----
-
-## Production Deployment
-
-BizMind is deployed on **Render**.
-
-Production setup includes:
-
-- Django application
-- Gunicorn
-- PostgreSQL
-- WhiteNoise for static files
-- Environment-based configuration
-- Automated deployment from GitHub
-
-Deployment configuration is defined in:
-
-```text
-render.yaml
-build.sh
-Procfile
-```
-
-### Live Application
-
-[https://bizmind-4un7.onrender.com](https://bizmind-4un7.onrender.com)
-
----
-
-## Security
-
-Production configuration keeps sensitive values outside the source code through environment variables.
-
-Sensitive files and development artifacts are excluded using `.gitignore`.
-
-Examples:
+Sensitive and generated files are excluded from source control:
 
 ```text
 .env
@@ -397,52 +587,256 @@ __pycache__/
 
 ---
 
-## Future Improvements
+# Validation & Error Handling
 
-Planned improvements include:
+The application validates incoming data at multiple layers.
 
-- Django REST Framework APIs
-- Advanced filtering and search
-- More business decision rules
-- Automated testing
-- Improved analytics
-- Role-based access control
-- Advanced dashboard visualizations
-- Production monitoring
-- More intelligent recommendation capabilities
+Examples include:
+
+- Dataset type validation
+- Duplicate dataset validation
+- Required field validation
+- Numeric field validation
+- Date validation
+- Minimum-value validation
+- Dataset ownership validation
+- API request validation
+- Processing error capture
+
+Invalid requests return appropriate HTTP `400` responses through Django REST Framework validation.
 
 ---
 
-## Project Goal
+# Local Development
 
-The goal of BizMind is to demonstrate how a Django application can combine:
+## 1. Clone the Repository
 
-```text
-Web Development
-       +
-Database Management
-       +
-Data Processing
-       +
-Business Logic
-       +
-Decision Intelligence
+```bash
+git clone https://github.com/Rukhmai-Parshad/bizmind.git
+cd bizmind
 ```
 
-into a complete end-to-end business application.
+## 2. Create a Virtual Environment
+
+### Windows
+
+```bash
+python -m venv venv
+venv\Scripts\activate
+```
+
+### macOS/Linux
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+## 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+## 4. Configure Environment Variables
+
+Create a `.env` file based on `.env.example`.
+
+Example:
+
+```text
+SECRET_KEY=your-secret-key
+DEBUG=True
+ALLOWED_HOSTS=127.0.0.1,localhost
+CSRF_TRUSTED_ORIGINS=http://127.0.0.1:8000
+```
+
+For production:
+
+```text
+DEBUG=False
+```
+
+Use a strong secret key and configure the production database and allowed hosts through environment variables.
+
+## 5. Run Migrations
+
+```bash
+python manage.py migrate
+```
+
+## 6. Start the Development Server
+
+```bash
+python manage.py runserver
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+Swagger documentation locally:
+
+```text
+http://127.0.0.1:8000/api/docs/
+```
 
 ---
 
-## Author
+# Production Deployment
+
+BizMind is deployed as a production Django application on **Render**.
+
+Production architecture includes:
+
+```text
+GitHub
+   ↓
+Render
+   ↓
+Gunicorn
+   ↓
+Django
+   ↓
+PostgreSQL
+```
+
+Production configuration includes:
+
+- Environment-based configuration
+- Production `DEBUG=False`
+- PostgreSQL database
+- Gunicorn WSGI server
+- WhiteNoise static-file handling
+- HTTPS
+- Secure cookies
+- HSTS configuration
+- Automated GitHub deployment
+
+Deployment configuration is maintained through:
+
+```text
+render.yaml
+build.sh
+Procfile
+```
+
+## Live URLs
+
+**Application:**  
+https://bizmind-4un7.onrender.com
+
+**Swagger API Docs:**  
+https://bizmind-4un7.onrender.com/api/docs/
+
+---
+
+# Engineering Highlights
+
+BizMind demonstrates practical implementation of:
+
+- Django application architecture
+- Custom user model
+- Django ORM and relational data modeling
+- CRUD operations
+- CSV ingestion and validation
+- Pandas-based data processing
+- Domain-driven business logic
+- Rule-based decision generation
+- REST API development
+- JWT authentication
+- API permissions
+- User-level data isolation
+- Serializer validation
+- ViewSet architecture
+- Pagination
+- Query-parameter filtering
+- OpenAPI documentation
+- Swagger UI
+- Environment variable management
+- Production PostgreSQL configuration
+- Static file handling with WhiteNoise
+- Gunicorn deployment
+- Render deployment
+- Git/GitHub workflow
+
+---
+
+# What This Project Demonstrates
+
+BizMind was built to demonstrate the ability to develop a complete backend-oriented web application rather than an isolated CRUD project.
+
+The project brings together:
+
+```text
+Python
+   +
+Django
+   +
+Django ORM
+   +
+SQL / PostgreSQL
+   +
+Pandas
+   +
+Business Logic
+   +
+REST APIs
+   +
+JWT Authentication
+   +
+Data Validation
+   +
+Decision Engine
+   +
+Production Deployment
+```
+
+The result is an end-to-end application that connects **data ingestion, processing, analysis, business rules, API services, and decision support** in a single Django system.
+
+---
+
+# Project Highlights
+
+| Area | Implementation |
+|---|---|
+| Backend | Django |
+| API | Django REST Framework |
+| Authentication | Django Authentication + JWT |
+| API Documentation | OpenAPI + Swagger UI |
+| Data Processing | Pandas + NumPy |
+| ORM | Django ORM |
+| Database | SQLite / PostgreSQL |
+| Business Domains | Sales, Marketing, Finance |
+| Decision Layer | Rule-based Decision Engine |
+| Frontend | Django Templates, HTML, CSS, JavaScript |
+| Production Server | Gunicorn |
+| Static Files | WhiteNoise |
+| Deployment | Render |
+| Source Control | Git + GitHub |
+
+---
+
+# Repository
+
+**GitHub:**  
+https://github.com/Rukhmai-Parshad/bizmind
+
+---
+
+# Author
 
 **Rukhmai Parshad**
 
 Full Stack Python / Django Developer
 
-[GitHub Profile →](https://github.com/Rukhmai-Parshad)
+**GitHub:**  
+https://github.com/Rukhmai-Parshad
 
 ---
 
-## License
+# License
 
 This project is developed for learning, portfolio, and demonstration purposes.
