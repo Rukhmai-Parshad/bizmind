@@ -44,3 +44,15 @@ Rules for every milestone: work on a new Git branch, make small commits, run the
 
 ## Unresolved issues log
 (Add anything unfinished here, with the milestone and date.)
+
+**Milestone 1 (2026-10-16), left open on purpose:**
+- Production (Render): set `NUM_PROXIES` to the real number of proxies in front of the app (check `X-Forwarded-For` in a log). Until then IP-based limits see all users as one address. Owner: Milestone 5.
+- Throttle counters use the per-process cache. Fine for the single gunicorn worker used today; if workers are added, move to a shared cache (Redis or database cache). Owner: Milestone 5.
+- The CSP still allows `'unsafe-inline'` and three CDN hosts (unpkg, cdnjs, jsDelivr) because the current templates need them. Remove them when assets are self-hosted. Owner: Milestone 3.
+- `PATCH`/`PUT` on `/api/datasets/` with a `file` stores a new CSV that is never processed or deleted (retention gap). `05_Backend_Schema.md` says dataset updates should not be allowed. Decide and fix. Owner: Milestone 2.
+- The 50,000-row limit was added to the shared validator in Milestone 1 (so the web form and API share it). Milestone 2 should reuse `datasets.validators.MAX_ROWS`, not add a second one.
+- A duplicate-name race (two identical uploads at the same instant) can still leave a stored file behind, because the file is written before the database constraint fires. Very narrow; revisit with the Milestone 2 status field.
+- Audit S8 also asks for a deliberate `TIME_ZONE` (still `UTC`). Not in the Milestone 1 list; needs an owner decision.
+- Open owner questions from `01_PRD.md` are still open: signup default role (ANALYST vs VIEWER), public `/stats/` (S6), and signup does not apply Django's password validators (docs/03 says it should).
+- Check by eye in a browser: both Logout buttons look like before, `/api/docs/` (Swagger) loads, and the dashboard charts load, with no CSP errors in the console.
+

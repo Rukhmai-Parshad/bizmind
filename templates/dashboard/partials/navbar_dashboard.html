@@ -11,6 +11,9 @@
 
     <div class="dash-user">
         <span>{{ request.user.email }}</span>
-        <a href="{% url 'accounts:logout' %}" class="logout-btn">Logout</a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">Logout</button>
+        </form>
     </div>
 </nav>

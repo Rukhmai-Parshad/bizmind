@@ -87,8 +87,8 @@ class ApiUploadCharacterisationTests(APITestCase):
         self.assertEqual(dataset.uploaded_by, self.analyst)
         self.assertTrue(dataset.is_processed)
 
-    def test_viewer_can_currently_upload_via_api(self):
-        """Current behaviour (audit S1): the API does not block VIEWER uploads."""
+    def test_viewer_cannot_upload_via_api(self):
+        """Viewer gets 403 from the API (audit S1 fixed)."""
         self._authenticate(self.viewer)
         response = self.client.post(
             reverse("dataset-list"),
@@ -99,8 +99,8 @@ class ApiUploadCharacterisationTests(APITestCase):
             },
             format="multipart",
         )
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(Dataset.objects.get().uploaded_by, self.viewer)
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(Dataset.objects.exists())
 
 
 class ApiOwnershipCharacterisationTests(APITestCase):

@@ -18,9 +18,10 @@
                 <a href="{% url 'dashboard:home' %}" class="bm-btn primary">
                     Dashboard
                 </a>
-                <a href="{% url 'accounts:logout' %}" class="bm-btn outline">
-                    Logout
-                </a>
+                <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="bm-btn outline">Logout</button>
+                </form>
             {% else %}
                 <a href="{% url 'accounts:login' %}" class="bm-btn outline">
                     Login

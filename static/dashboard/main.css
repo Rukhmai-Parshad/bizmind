@@ -71,6 +71,13 @@ a:hover {
     text-decoration: none;
 }
 
+/* Logout is now a POST form button (audit S3); keep it looking like the old link. */
+button.logout-btn {
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+}
+
 .dashboard-content,
 .container {
     width: min(1100px, 92%);

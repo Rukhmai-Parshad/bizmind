@@ -31,3 +31,26 @@ def process_dataset(dataset):
             transaction.on_commit(
                 lambda: default_storage.delete(stored_file_name)
             )
+
+
+def save_and_process_dataset(dataset):
+    """Save a new Dataset (and its uploaded file) and process it, all or nothing.
+
+    Used by BOTH the web upload view and the REST API (audit S5).
+
+    - The row, the parsed records and the decisions are created inside ONE
+      database transaction, so any error rolls all of them back.
+    - The uploaded file is written to disk before the transaction can roll
+      back, so on failure it is deleted here by hand.
+    - The original exception is re-raised so the caller can show a message.
+    """
+    stored_file_name = None
+    try:
+        with transaction.atomic():
+            dataset.save()
+            stored_file_name = dataset.file.name if dataset.file else None
+            process_dataset(dataset)
+    except Exception:
+        if stored_file_name:
+            default_storage.delete(stored_file_name)
+        raise
