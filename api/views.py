@@ -181,4 +181,4 @@ class DecisionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return Decision.objects.filter(
             dataset__uploaded_by=self.request.user
-        )
+        )

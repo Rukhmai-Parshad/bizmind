@@ -75,6 +75,10 @@ class HeadersOnRealResponsesTests(TestCase):
 
 
 class PolicyContentTests(SimpleTestCase):
+    """Milestone 3: everything is self-hosted, so the policy allows 'self' only."""
+
+    ALLOWED_SOURCES = {"'self'", "'none'", "data:"}
+
     def setUp(self):
         self.policy = parse_csp(build_csp_header())
 
@@ -86,25 +90,64 @@ class PolicyContentTests(SimpleTestCase):
         self.assertEqual(self.policy["frame-ancestors"], ["'none'"])
         self.assertEqual(self.policy["connect-src"], ["'self'"])
 
-    def test_scripts_cannot_use_eval_or_arbitrary_hosts(self):
-        scripts = self.policy["script-src"]
-        self.assertNotIn("'unsafe-eval'", scripts)
-        self.assertNotIn("*", scripts)
-        self.assertNotIn("http:", scripts)
-        self.assertNotIn("https:", scripts)
+    def test_scripts_and_styles_are_self_only(self):
+        self.assertEqual(self.policy["script-src"], ["'self'"])
+        self.assertEqual(self.policy["style-src"], ["'self'"])
+        self.assertEqual(self.policy["font-src"], ["'self'"])
 
-    def test_every_external_host_used_by_a_template_is_allowed(self):
-        """Adding a CDN to a template without updating the policy must fail here.
+    def test_no_external_host_unsafe_inline_or_unsafe_eval_anywhere(self):
+        for directive, sources in self.policy.items():
+            with self.subTest(directive=directive):
+                self.assertLessEqual(set(sources), self.ALLOWED_SOURCES)
 
-        <script src> hosts are checked against script-src and
-        <link href> (stylesheet) hosts against style-src.
-        """
-        script_hosts, style_hosts = set(), set()
-        for path in Path(settings.BASE_DIR, "templates").rglob("*.html"):
+    def test_only_images_may_use_data_uris(self):
+        for directive, sources in self.policy.items():
+            if directive != "img-src":
+                with self.subTest(directive=directive):
+                    self.assertNotIn("data:", sources)
+
+
+class TemplatesMatchThePolicyTests(SimpleTestCase):
+    """The templates and static files must not need anything the policy forbids."""
+
+    def files(self, folder, pattern):
+        return list(Path(settings.BASE_DIR, folder).rglob(pattern))
+
+    def test_no_template_loads_anything_from_another_host(self):
+        loads = re.compile(r'\b(?:src|href|action)\s*=\s*"(?:https?:)?//', re.I)
+        for path in self.files("templates", "*.html"):
+            with self.subTest(template=path.name):
+                self.assertIsNone(loads.search(path.read_text(encoding="utf-8")))
+
+    def test_no_template_has_inline_script_style_or_event_handlers(self):
+        inline_script = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>", re.I)
+        patterns = {
+            "inline <script>": inline_script,
+            "<style> block": re.compile(r"<style\b", re.I),
+            'style="" attribute': re.compile(r'\sstyle\s*=', re.I),
+            "on...= handler": re.compile(r'\son[a-z]+\s*=', re.I),
+            "javascript: url": re.compile(r"javascript:", re.I),
+        }
+        for path in self.files("templates", "*.html"):
             html = path.read_text(encoding="utf-8")
-            script_hosts.update(re.findall(r'<script[^>]*\bsrc="(https://[^/"]+)', html))
-            style_hosts.update(re.findall(r'<link[^>]*\bhref="(https://[^/"]+)', html))
+            for label, pattern in patterns.items():
+                with self.subTest(template=path.name, found=label):
+                    self.assertIsNone(pattern.search(html))
 
-        self.assertTrue(script_hosts and style_hosts, "expected the current templates to use CDN hosts")
-        self.assertLessEqual(script_hosts, set(self.policy["script-src"]))
-        self.assertLessEqual(style_hosts, set(self.policy["style-src"]))
+    def test_css_and_js_load_nothing_external(self):
+        for path in self.files("static", "*.css") + self.files("static", "*.js"):
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(file=path.name):
+                self.assertNotRegex(text, r"@import|url\(\s*['\"]?(?:https?:)?//")
+
+    def test_removed_third_party_assets_are_really_gone(self):
+        for forbidden in ("unpkg", "cdnjs", "jsdelivr", "googleapis", "font-awesome", "aos.js", "chart.js"):
+            for path in self.files("templates", "*.html"):
+                with self.subTest(template=path.name, word=forbidden):
+                    self.assertNotIn(forbidden, path.read_text(encoding="utf-8").lower())
+        self.assertFalse(Path(settings.BASE_DIR, "static/img/about.jpg").exists())
+        self.assertFalse(Path(settings.BASE_DIR, "static/css/style.css").exists())
+        self.assertFalse(Path(settings.BASE_DIR, "static/dashboard/main.css").exists())
+
+    def test_there_is_exactly_one_stylesheet(self):
+        self.assertEqual([p.name for p in self.files("static", "*.css")], ["app.css"])

@@ -42,4 +42,4 @@ urlpatterns = [
     # API Routes
     # =========================
     *router.urls,
-]
+]

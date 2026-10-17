@@ -56,3 +56,10 @@ Rules for every milestone: work on a new Git branch, make small commits, run the
 - Open owner questions from `01_PRD.md` are still open: signup default role (ANALYST vs VIEWER), public `/stats/` (S6), and signup does not apply Django's password validators (docs/03 says it should).
 - Check by eye in a browser: both Logout buttons look like before, `/api/docs/` (Swagger) loads, and the dashboard charts load, with no CSP errors in the console.
 
+**Milestone 3 (2026-10-17), left open on purpose:**
+- Not seen in a real browser (none available while building). Check by eye at 375, 768 and 1280 px: nav wrapping, tables scrolling sideways on a phone, the progress-bar charts, and that `/api/docs/` (Swagger, now self-hosted) looks right. Swagger's own inline `<style>` block is blocked by the strict CSP (cosmetic only).
+- The Datasets table shows the decision count with `ds.decisions.count`, which is one extra query per row. Fine for small lists; add `Count("decisions")` in the view (Milestone 2 work) if lists grow.
+- Dataset status is only Processed / Pending until Milestone 2 adds `status` and `error_message`. The detail page has no Delete button yet (also Milestone 2).
+- New dependency `drf-spectacular-sidecar` (self-hosted Swagger UI) so `/api/docs/` keeps working with a CSP of `'self'` only. Run `pip install -r requirements.txt`.
+- Not touched: Django's CSRF failure page (`403_csrf`) still uses Django's default look.
+

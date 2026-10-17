@@ -1,40 +1,59 @@
-{% load static %}
-<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}BizMind{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'dashboard/main.css' %}">
-    {% block extra_css %}{% endblock %}
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232563EB'/%3E%3Ctext x='16' y='23' font-size='20' font-weight='700' text-anchor='middle' fill='white' font-family='sans-serif'%3EB%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <script src="{% static 'js/app.js' %}" defer></script>
 </head>
 <body>
-    {% if user.is_authenticated %}
-        {% include "dashboard/partials/navbar_dashboard.html" %}
-    {% else %}
-        <nav class="dash-navbar">
-            <div class="dash-logo">
-                <a href="{% url 'core:home' %}">BizMind</a>
-            </div>
-            <div class="dash-user">
-                <a href="{% url 'accounts:login' %}">Login</a>
-                <a href="{% url 'accounts:signup' %}" class="btn btn-primary">Sign Up</a>
-            </div>
-        </nav>
-    {% endif %}
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <nav class="site-nav" aria-label="Main">
+        <div class="container">
+            <a class="brand" href="{% url 'core:home' %}">BizMind</a>
+            <ul class="nav-links">
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard:home' %}"{% if request.resolver_match.app_name == 'dashboard' %} aria-current="page"{% endif %}>Dashboard</a></li>
+                    <li><a href="{% url 'datasets:dataset_list' %}"{% if request.resolver_match.app_name == 'datasets' and request.resolver_match.url_name != 'upload' %} aria-current="page"{% endif %}>Datasets</a></li>
+                    <li><a href="{% url 'decisions:filtered' %}"{% if request.resolver_match.app_name == 'decisions' %} aria-current="page"{% endif %}>Decisions</a></li>
+                    {% if user.is_admin or user.is_analyst %}
+                        <li><a href="{% url 'datasets:upload' %}"{% if request.resolver_match.url_name == 'upload' %} aria-current="page"{% endif %}>Upload</a></li>
+                    {% endif %}
+                    <li>
+                        <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+                            {% csrf_token %}
+                            <button type="submit">Logout</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="{% url 'core:home' %}"{% if request.resolver_match.url_name == 'home' %} aria-current="page"{% endif %}>Home</a></li>
+                    <li><a href="{% url 'accounts:login' %}"{% if request.resolver_match.url_name == 'login' %} aria-current="page"{% endif %}>Log in</a></li>
+                    <li><a href="{% url 'accounts:signup' %}"{% if request.resolver_match.url_name == 'signup' %} aria-current="page"{% endif %}>Sign up</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
 
     {% if messages %}
-        <div class="container message-container">
+        <div class="container messages">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                <div class="message message-{{ message.tags }}"{% if message.tags == 'error' %} role="alert"{% else %} role="status"{% endif %}>{{ message }}</div>
             {% endfor %}
         </div>
     {% endif %}
 
-    <main>
+    <main id="main" class="container">
         {% block content %}{% endblock %}
     </main>
 
-    {% block extra_js %}{% endblock %}
+    <footer class="site-footer">
+        <div class="container">
+            <span>BizMind: rule-based decisions from your CSV data.</span>
+            <a href="/api/docs/">API docs</a>
+        </div>
+    </footer>
 </body>
 </html>

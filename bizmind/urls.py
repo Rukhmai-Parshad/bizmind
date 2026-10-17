@@ -3,7 +3,7 @@ from django.urls import include, path
 
 from drf_spectacular.views import (
     SpectacularAPIView,
-    SpectacularSwaggerView,
+    SpectacularSwaggerSplitView,
 )
 
 
@@ -22,7 +22,7 @@ urlpatterns = [
     # =========================
     path(
         "api/docs/",
-        SpectacularSwaggerView.as_view(url_name="schema"),
+        SpectacularSwaggerSplitView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
 

@@ -1,46 +1,61 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Datasets | BizMind{% endblock %}
 
 {% block content %}
-<div class="container">
-
-    <div class="page-header">
-        <h1>Your Datasets</h1>
-        <p class="subtitle">Uploaded and processed datasets</p>
+<div class="page-header">
+    <div>
+        <h1>Datasets</h1>
+        <p class="muted">Your uploaded files and their processing status.</p>
     </div>
-
-    <div class="action-bar">
-        <a href="{% url 'datasets:upload' %}" class="btn btn-success">
-            + Upload New Dataset
-        </a>
-    </div>
-
-    {% if datasets %}
-        <div class="list">
-            {% for ds in datasets %}
-                <div class="list-item">
-                    <strong>{{ ds.name }}</strong>
-
-                    <p class="subtitle">
-                        {{ ds.type|title }} • {{ ds.uploaded_at|date:"d M Y" }}
-                    </p>
-
-                    {% if ds.is_processed %}
-                        <span class="badge badge-success">Processed</span>
-                    {% else %}
-                        <span class="badge badge-warning">Pending</span>
-                    {% endif %}
-
-                    <div class="list-item-action">
-                        <a href="{% url 'datasets:dataset_detail' ds.id %}">
-                            View Decisions →
-                        </a>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="empty-text">No datasets uploaded yet.</p>
+    {% if user.is_admin or user.is_analyst %}
+        <a class="btn btn-primary" href="{% url 'datasets:upload' %}">Upload dataset</a>
     {% endif %}
-
 </div>
+
+{% if datasets %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Uploaded</th>
+                    <th scope="col" class="num">Decisions</th>
+                    <th scope="col"><span class="sr-only">Open</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ds in datasets %}
+                    <tr>
+                        <td>{{ ds.name }}</td>
+                        <td>{{ ds.type|title }}</td>
+                        <td>
+                            {% if ds.is_processed %}
+                                <span class="pill badge-success">Processed</span>
+                            {% else %}
+                                <span class="pill badge-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ ds.uploaded_at|date:"d M Y" }}</td>
+                        <td class="num">{{ ds.decisions.count }}</td>
+                        <td><a href="{% url 'datasets:dataset_detail' ds.pk %}">Open<span class="sr-only"> {{ ds.name }}</span></a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty">
+        <p>No datasets yet.</p>
+        <p>
+            {% if user.is_admin or user.is_analyst %}<a href="{% url 'datasets:upload' %}">Upload a CSV</a> or {% endif %}
+            download a sample:
+            <a href="{% static 'samples/sales_sample.csv' %}" download>Sales</a>,
+            <a href="{% static 'samples/marketing_sample.csv' %}" download>Marketing</a>,
+            <a href="{% static 'samples/finance_sample.csv' %}" download>Finance</a>.
+        </p>
+    </div>
+{% endif %}
 {% endblock %}

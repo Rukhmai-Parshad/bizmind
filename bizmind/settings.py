@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',  # remembers used/revoked refresh tokens
     'drf_spectacular',
+    'drf_spectacular_sidecar',  # self-hosted Swagger UI files (no CDN)
 
     # Local apps
     'accounts',
@@ -183,20 +184,16 @@ SECURE_REFERRER_POLICY = "same-origin"
 
 # Content-Security-Policy: tells the browser which sources may load scripts,
 # styles, fonts and images, and what the page may submit forms to or be framed by.
-# The pages TODAY still load AOS (unpkg), Font Awesome (cdnjs) and Chart.js
-# (jsDelivr), and use inline <script> blocks, so those are allowed for now.
-# TODO Milestone 3: self-host everything, then remove every https:// source and
-# "'unsafe-inline'" below (docs/02_TRD.md: "allows only self-hosted assets").
-# bizmind/test_security_headers.py fails if a template uses a host not listed here.
+# Everything is self-hosted (static/css/app.css, static/js/app.js), so every
+# source is 'self' only: no CDN hosts and no 'unsafe-inline'. That also means
+# templates must not contain inline <script>, <style> or style="..." attributes.
+# bizmind/test_security_headers.py fails if this policy or a template regresses.
 CONTENT_SECURITY_POLICY = {
     "default-src": ["'self'"],
-    "script-src": ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdn.jsdelivr.net"],
-    "style-src": [
-        "'self'", "'unsafe-inline'",
-        "https://unpkg.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net",
-    ],
-    "font-src": ["'self'", "https://cdnjs.cloudflare.com"],
-    "img-src": ["'self'", "data:", "https://cdn.jsdelivr.net"],  # jsDelivr: Swagger favicon
+    "script-src": ["'self'"],
+    "style-src": ["'self'"],
+    "font-src": ["'self'"],
+    "img-src": ["'self'", "data:"],  # data: is used for the inline SVG favicon
     "connect-src": ["'self'"],
     "object-src": ["'none'"],
     "base-uri": ["'self'"],
@@ -242,6 +239,9 @@ SIMPLE_JWT = {
 }
 
 SPECTACULAR_SETTINGS = {
+    # Serve Swagger UI from our own static files instead of a CDN (CSP is 'self' only).
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "TITLE": "BizMind API",
     "DESCRIPTION": (
         "REST API for BizMind — a Unified Decision Intelligence Platform "
