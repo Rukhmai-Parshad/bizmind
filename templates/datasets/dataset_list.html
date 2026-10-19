@@ -1,19 +1,25 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 {% load static %}
 {% block title %}Datasets | BizMind{% endblock %}
+{% block crumbs %}<li><span aria-current="page">Datasets</span></li>{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
         <h1>Datasets</h1>
-        <p class="muted">Your uploaded files and their processing status.</p>
+        <p class="muted">Every file you have uploaded and what came out of it.</p>
     </div>
-    {% if user.is_admin or user.is_analyst %}
-        <a class="btn btn-primary" href="{% url 'datasets:upload' %}">Upload dataset</a>
-    {% endif %}
 </div>
 
 {% if datasets %}
+    <div class="segmented" role="group" aria-label="Filter by type">
+        <button type="button" data-type-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-type-filter="sales" aria-pressed="false">Sales</button>
+        <button type="button" data-type-filter="marketing" aria-pressed="false">Marketing</button>
+        <button type="button" data-type-filter="finance" aria-pressed="false">Finance</button>
+    </div>
+    <p class="result-count" data-result-count hidden></p>
+
     <div class="table-wrap">
         <table>
             <thead>
@@ -21,26 +27,28 @@
                     <th scope="col">Name</th>
                     <th scope="col">Type</th>
                     <th scope="col">Status</th>
-                    <th scope="col">Uploaded</th>
+                    <th scope="col" class="num">Rows</th>
                     <th scope="col" class="num">Decisions</th>
+                    <th scope="col">Uploaded</th>
                     <th scope="col"><span class="sr-only">Open</span></th>
                 </tr>
             </thead>
             <tbody>
                 {% for ds in datasets %}
-                    <tr>
-                        <td>{{ ds.name }}</td>
-                        <td>{{ ds.type|title }}</td>
+                    <tr data-search-item data-type="{{ ds.type }}">
+                        <td class="row-name">{{ ds.name }}</td>
+                        <td><span class="chip">{{ ds.type|title }}</span></td>
                         <td>
                             {% if ds.is_processed %}
-                                <span class="pill badge-success">Processed</span>
+                                <span class="chip chip-dot badge-success">Processed</span>
                             {% else %}
-                                <span class="pill badge-warning">Pending</span>
+                                <span class="chip chip-dot badge-warning">Pending</span>
                             {% endif %}
                         </td>
-                        <td>{{ ds.uploaded_at|date:"d M Y" }}</td>
+                        <td class="num">{% if ds.type == 'sales' %}{{ ds.sales_records.count }}{% elif ds.type == 'marketing' %}{{ ds.marketing_records.count }}{% else %}{{ ds.finance_records.count }}{% endif %}</td>
                         <td class="num">{{ ds.decisions.count }}</td>
-                        <td><a href="{% url 'datasets:dataset_detail' ds.pk %}">Open<span class="sr-only"> {{ ds.name }}</span></a></td>
+                        <td>{{ ds.uploaded_at|date:"d M Y" }}</td>
+                        <td><a class="row-action text-link" href="{% url 'datasets:dataset_detail' ds.pk %}">Open<span class="sr-only"> {{ ds.name }}</span>{% include "icons/arrow-right.html" %}</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -48,14 +56,22 @@
     </div>
 {% else %}
     <div class="empty">
-        <p>No datasets yet.</p>
-        <p>
-            {% if user.is_admin or user.is_analyst %}<a href="{% url 'datasets:upload' %}">Upload a CSV</a> or {% endif %}
-            download a sample:
-            <a href="{% static 'samples/sales_sample.csv' %}" download>Sales</a>,
-            <a href="{% static 'samples/marketing_sample.csv' %}" download>Marketing</a>,
-            <a href="{% static 'samples/finance_sample.csv' %}" download>Finance</a>.
-        </p>
+        {% include "icons/file.html" %}
+        <div>
+            <h2>Start with one file</h2>
+            {% if user.is_admin or user.is_analyst %}
+                <p>No datasets yet. Upload one CSV file, or try a sample first to see how a decision looks.</p>
+                <div class="btn-row"><a class="btn btn-primary" href="{% url 'datasets:upload' %}">{% include "icons/upload.html" %}Upload your first file</a></div>
+                <p class="small">
+                    Sample files:
+                    <a href="{% static 'samples/sales_sample.csv' %}" download>Sales</a>,
+                    <a href="{% static 'samples/marketing_sample.csv' %}" download>Marketing</a>,
+                    <a href="{% static 'samples/finance_sample.csv' %}" download>Finance</a>.
+                </p>
+            {% else %}
+                <p>No datasets yet. Your account can view results but not upload, so ask an analyst or admin to add a file.</p>
+            {% endif %}
+        </div>
     </div>
 {% endif %}
 {% endblock %}

@@ -1,12 +1,15 @@
-{% extends "base.html" %}
+{% extends "base_public.html" %}
 {% block title %}Not allowed | BizMind{% endblock %}
 
-{% block content %}
-<div class="centered">
-    <h1>You are not allowed to do that</h1>
-    <p class="muted">Your account does not have permission for this action.</p>
-    <div class="btn-row">
-        {% if user.is_authenticated %}<a class="btn btn-primary" href="{% url 'dashboard:home' %}">Back to dashboard</a>{% else %}<a class="btn btn-primary" href="{% url 'core:home' %}">Back to home</a>{% endif %}
+{% block main %}
+<div class="wrap">
+    <div class="notice-page">
+        <p class="label">Error 403</p>
+        <h1>You are not allowed to do that</h1>
+        <p class="muted">Your account does not have permission for this action. If you think that is a mistake, ask the person who manages your account.</p>
+        <div class="btn-row">
+            {% if user.is_authenticated %}<a class="btn btn-primary" href="{% url 'dashboard:home' %}">Back to dashboard</a>{% else %}<a class="btn btn-primary" href="{% url 'core:home' %}">Back to home</a>{% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

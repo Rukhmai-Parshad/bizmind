@@ -1,11 +1,12 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 {% block title %}Decisions | BizMind{% endblock %}
+{% block crumbs %}<li><span aria-current="page">Decisions</span></li>{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
         <h1>Decisions</h1>
-        <p class="muted">Every decision generated from your datasets.</p>
+        <p class="muted">Every decision from your datasets. Filter by area or by how confident the rule is.</p>
     </div>
 </div>
 
@@ -34,6 +35,19 @@
     </div>
 </form>
 
+{% if selected_domain or selected_confidence %}
+    <div class="active-filters">
+        <span>Active filters:</span>
+        {% if selected_domain %}
+            <a class="chip chip-filter" href="{% url 'decisions:filtered' %}{% if selected_confidence %}?confidence={{ selected_confidence|urlencode }}{% endif %}">Domain: {{ selected_domain|title }}{% include "icons/close.html" %}<span class="sr-only">Remove domain filter</span></a>
+        {% endif %}
+        {% if selected_confidence %}
+            <a class="chip chip-filter" href="{% url 'decisions:filtered' %}{% if selected_domain %}?domain={{ selected_domain|urlencode }}{% endif %}">Confidence: {{ selected_confidence|title }}{% include "icons/close.html" %}<span class="sr-only">Remove confidence filter</span></a>
+        {% endif %}
+    </div>
+{% endif %}
+
+<p class="result-count" data-result-count hidden></p>
 {% if decisions %}
     <div class="stack">
         {% for d in decisions %}
@@ -41,8 +55,22 @@
         {% endfor %}
     </div>
 {% elif selected_domain or selected_confidence %}
-    <div class="empty"><p>No decisions match these filters.</p></div>
+    <div class="empty">
+        {% include "icons/file.html" %}
+        <div>
+            <h2>No match</h2>
+            <p>No decisions match these filters. Try a different combination, or clear them.</p>
+            <div class="btn-row"><a class="btn" href="{% url 'decisions:filtered' %}">Clear filters</a></div>
+        </div>
+    </div>
 {% else %}
-    <div class="empty"><p>No decisions yet. Your data is within the expected ranges.</p></div>
+    <div class="empty">
+        {% include "icons/file.html" %}
+        <div>
+            <h2>Nothing to flag</h2>
+            <p>No decisions yet. Your data is within the expected ranges, or you have not uploaded a file.</p>
+            <div class="btn-row"><a class="btn btn-primary" href="{% url 'datasets:dataset_list' %}">Go to datasets</a></div>
+        </div>
+    </div>
 {% endif %}
 {% endblock %}

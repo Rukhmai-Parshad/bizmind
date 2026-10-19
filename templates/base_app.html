@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block body_class %}app{% endblock %}
+
+{% block body %}
+<div class="shell">
+    <aside class="sidebar" id="sidebar">
+        <a class="side-brand" href="{% url 'dashboard:home' %}" aria-label="BizMind dashboard"><span class="full">BizMind</span><span class="short" aria-hidden="true">B</span></a>
+        <nav class="side-nav" aria-label="Workspace">
+            <p class="side-title">Workspace</p>
+            <ul>
+                <li><a class="side-link" href="{% url 'dashboard:home' %}"{% if request.resolver_match.app_name == 'dashboard' %} aria-current="page"{% endif %}>{% include "icons/dashboard.html" %}<span class="side-label">Dashboard</span></a></li>
+                <li><a class="side-link" href="{% url 'datasets:dataset_list' %}"{% if request.resolver_match.app_name == 'datasets' and request.resolver_match.url_name != 'upload' %} aria-current="page"{% endif %}>{% include "icons/datasets.html" %}<span class="side-label">Datasets</span></a></li>
+                <li><a class="side-link" href="{% url 'decisions:filtered' %}"{% if request.resolver_match.app_name == 'decisions' %} aria-current="page"{% endif %}>{% include "icons/decisions.html" %}<span class="side-label">Decisions</span></a></li>
+                {% if user.is_admin or user.is_analyst %}
+                    <li><a class="side-link" href="{% url 'datasets:upload' %}"{% if request.resolver_match.url_name == 'upload' %} aria-current="page"{% endif %}>{% include "icons/upload.html" %}<span class="side-label">Upload</span></a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <div class="side-foot">
+            <p class="side-user">{{ user.email }}</p>
+            <span class="chip">{{ user.role|title }}</span>
+            <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+                {% csrf_token %}
+                <button type="submit" class="side-logout">{% include "icons/logout.html" %}<span class="side-label">Logout</span></button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="main">
+        <header class="appbar">
+            <button type="button" class="menu-button" data-menu-button aria-controls="sidebar" aria-expanded="false" aria-label="Open menu">{% include "icons/menu.html" %}</button>
+            <nav aria-label="Breadcrumb"><ol class="crumbs">{% block crumbs %}{% endblock %}</ol></nav>
+            <div class="search" role="search" data-search hidden>
+                <label class="sr-only" for="page-search">Filter this page</label>
+                {% include "icons/search.html" %}
+                <input id="page-search" type="search" placeholder="Filter this page" autocomplete="off">
+                <kbd aria-hidden="true">/</kbd>
+            </div>
+            {% block topbar_action %}
+                {% if user.is_admin or user.is_analyst %}
+                    <a class="btn btn-primary" href="{% url 'datasets:upload' %}">{% include "icons/upload.html" %}Upload CSV</a>
+                {% endif %}
+            {% endblock %}
+        </header>
+
+        <main id="main" class="content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="app-footer">
+            <a href="{% url 'core:privacy' %}">Privacy Policy</a>
+            <a href="{% url 'core:terms' %}">Terms</a>
+            <a href="/api/docs/">API docs</a>
+        </footer>
+    </div>
+</div>
+<div class="scrim" data-scrim></div>
+{% endblock %}

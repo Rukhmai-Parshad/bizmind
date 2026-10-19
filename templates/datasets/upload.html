@@ -1,6 +1,11 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 {% load static %}
 {% block title %}Upload dataset | BizMind{% endblock %}
+{% block crumbs %}
+    <li><a href="{% url 'datasets:dataset_list' %}">Datasets</a></li>
+    <li><span aria-current="page">Upload</span></li>
+{% endblock %}
+{% block topbar_action %}{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -10,8 +15,8 @@
     </div>
 </div>
 
-<div class="narrow stack">
-    <form method="post" enctype="multipart/form-data" data-loading-text="Processing..." class="card">
+<div class="upload-grid">
+    <form method="post" enctype="multipart/form-data" data-loading-text="Processing..." class="panel">
         {% csrf_token %}
         {{ form.non_field_errors }}
 
@@ -19,6 +24,7 @@
             <div class="form-field{% if field.errors %} has-error{% endif %}">
                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                 {{ field }}
+                {% if field.name == 'file' %}<p class="file-name" data-file-name></p>{% endif %}
                 {% if field.help_text %}<span class="field-help">{{ field.help_text }}</span>{% endif %}
                 {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
             </div>
@@ -30,24 +36,25 @@
         </div>
     </form>
 
-    <section class="card requirements" aria-labelledby="req-title">
+    <section class="panel panel-muted requirements" aria-labelledby="req-title">
+        <p class="label">Before you upload</p>
         <h2 id="req-title">Required columns</h2>
-        <p class="muted small">Extra columns are allowed. Required columns must be present and contain valid values.</p>
+        <p class="muted small">Extra columns are allowed. The required ones must be present and hold valid values.</p>
         <dl>
             <div data-schema="sales">
                 <dt>Sales</dt>
                 <dd><code>date, product, region, units_sold, unit_price</code><br>
-                    <a href="{% static 'samples/sales_sample.csv' %}" download>Download sample CSV</a></dd>
+                    <a href="{% static 'samples/sales_sample.csv' %}" download>{% include "icons/download.html" %}Download sample CSV</a></dd>
             </div>
             <div data-schema="marketing">
                 <dt>Marketing</dt>
                 <dd><code>date, campaign, channel, impressions, clicks, conversions, spend, revenue</code><br>
-                    <a href="{% static 'samples/marketing_sample.csv' %}" download>Download sample CSV</a></dd>
+                    <a href="{% static 'samples/marketing_sample.csv' %}" download>{% include "icons/download.html" %}Download sample CSV</a></dd>
             </div>
             <div data-schema="finance">
                 <dt>Finance</dt>
                 <dd><code>date, category, department, amount, type</code> where type is <code>income</code> or <code>expense</code><br>
-                    <a href="{% static 'samples/finance_sample.csv' %}" download>Download sample CSV</a></dd>
+                    <a href="{% static 'samples/finance_sample.csv' %}" download>{% include "icons/download.html" %}Download sample CSV</a></dd>
             </div>
         </dl>
     </section>

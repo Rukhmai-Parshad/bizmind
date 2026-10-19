@@ -1,15 +1,21 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 {% block title %}Decisions for {{ dataset.name }} | BizMind{% endblock %}
+{% block crumbs %}
+    <li><a href="{% url 'datasets:dataset_list' %}">Datasets</a></li>
+    <li><a href="{% url 'datasets:dataset_detail' dataset.pk %}">{{ dataset.name }}</a></li>
+    <li><span aria-current="page">Decisions</span></li>
+{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
         <h1>Decisions for {{ dataset.name }}</h1>
-        <p class="muted">{{ dataset.type|title }} dataset · Uploaded {{ dataset.uploaded_at|date:"d M Y" }}</p>
+        <p class="muted">{{ dataset.type|title }} dataset &middot; Uploaded {{ dataset.uploaded_at|date:"d M Y" }}</p>
     </div>
     <a class="btn" href="{% url 'datasets:dataset_detail' dataset.pk %}">Back to dataset</a>
 </div>
 
+<p class="result-count" data-result-count hidden></p>
 {% if decisions %}
     <div class="stack">
         {% for d in decisions %}
@@ -17,6 +23,12 @@
         {% endfor %}
     </div>
 {% else %}
-    <div class="empty"><p>No decisions yet. Your data is within the expected ranges.</p></div>
+    <div class="empty">
+        {% include "icons/file.html" %}
+        <div>
+            <h2>Nothing to flag</h2>
+            <p>No decisions yet. Your data is within the expected ranges.</p>
+        </div>
+    </div>
 {% endif %}
 {% endblock %}

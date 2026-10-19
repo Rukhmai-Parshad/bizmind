@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block body %}
+<header class="public-bar">
+    <nav class="wrap" aria-label="Main">
+        <a class="wordmark" href="{% url 'core:home' %}" aria-label="BizMind Home">BizMind</a>
+        <ul class="public-links">
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                <li><a href="{% url 'datasets:dataset_list' %}">Datasets</a></li>
+                <li><a href="{% url 'decisions:filtered' %}">Decisions</a></li>
+                {% if user.is_admin or user.is_analyst %}<li><a href="{% url 'datasets:upload' %}">Upload</a></li>{% endif %}
+                <li>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit">Logout</button>
+                    </form>
+                </li>
+            {% else %}
+                <li class="hide-small"><a href="{% url 'core:home' %}#how-it-works">How it works</a></li>
+                <li class="hide-small"><a href="{% url 'core:home' %}#features">Features</a></li>
+                <li class="hide-small"><a href="/api/docs/">API docs</a></li>
+                <li><a href="{% url 'accounts:login' %}">Log in</a></li>
+                <li><a class="btn btn-primary" href="{% url 'accounts:signup' %}">Sign up</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
+
+<main id="main">
+    {% block main %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+    <div class="wrap">
+        <div class="footer-grid">
+            <div>
+                <a class="wordmark" href="{% url 'core:home' %}" aria-label="BizMind Home">BizMind</a>
+                <h2>About BizMind</h2>
+                <p>BizMind reads a CSV file you upload and applies fixed, documented rules to produce decisions you can act on.</p>
+            </div>
+            <div>
+                <h2>Product</h2>
+                <ul>
+                    <li><a href="{% url 'core:home' %}#how-it-works">How it works</a></li>
+                    <li><a href="{% url 'core:home' %}#features">Features</a></li>
+                    <li><a href="/api/docs/">API docs</a></li>
+                </ul>
+            </div>
+            <div>
+                <h2>Legal</h2>
+                <ul>
+                    <li><a href="{% url 'core:privacy' %}">Privacy Policy</a></li>
+                    <li><a href="{% url 'core:terms' %}">Terms</a></li>
+                </ul>
+            </div>
+        </div>
+        <p class="footer-copy">&copy; {% now "Y" %} BizMind.</p>
+    </div>
+</footer>
+{% endblock %}

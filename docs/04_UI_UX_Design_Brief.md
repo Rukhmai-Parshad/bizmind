@@ -1,58 +1,75 @@
-# 04. UI and UX Design Brief: BizMind v2 (Minimalist)
+# 04. UI and UX Design Brief: BizMind (warm, quiet, product style)
 
-**Audience and tone:** Small-business owners and analysts. Three adjectives: calm, precise, uncluttered. The interface should feel like a clean report, not a marketing site.
+**Audience and tone:** Small-business owners and analysts. Calm, spacious, precise. The interface borrows the structure of tools such as Notion and Linear (sidebar, breadcrumbs, keyboard hints, status chips, empty states with one action) and gives it a warm, paper-like look.
 
-**Reference products:** Linear and Stripe Dashboard (borrow: whitespace, thin borders, restrained colour), plain GOV.UK style forms (borrow: clear labels and error text). Avoid: gradients, glassmorphism, neon accents, animated counters, scroll animations, stock illustrations.
+**Never use:** gradients of any kind, glow or glass effects, pill-shaped buttons, emoji, photographs or generated images, testimonials, fake metrics, user counts or logos, star ratings, animated counters, scroll animation, parallax, custom cursors, marquees, "built with" badges, vague hero text, and em or en dashes in any visible text, template, comment or document. Every claim on the site must be true and traceable to code.
 
-**Design rules (hard):**
-1. Light theme only in v1. White background, dark text.
-2. One accent colour. Everything else is grey.
-3. No shadows, no gradients, no animations except a 150 ms colour change on hover/focus.
-4. 1 px borders separate content. Cards are bordered boxes, not floating.
-5. No icon fonts. Text labels only (a few inline SVGs are allowed if essential).
-6. No third-party CSS, fonts or animation libraries. System font stack.
+**Hard technical rules:**
+1. Django templates, one stylesheet (`static/css/app.css`), one script (`static/js/app.js`). No Tailwind, no React, no icon fonts.
+2. Content-Security-Policy is `'self'` only: no external fonts, CSS, JS, images or CDN, no inline `<script>`, no `<style>` block and no `style=""` attribute.
+3. System font stacks only. No downloads.
+4. Logout is always a POST form with a CSRF token.
+5. Every page works without JavaScript. JavaScript only adds toasts that dismiss, the mobile menu, page search, a type filter, the selected file name and button loading text.
+6. Rules for the stylesheet are enforced by tests in `core/test_redesign.py`.
 
-**Color palette (CSS variables on `:root`):**
+## Palette (CSS variables on `:root`, exact values)
 | Token | Value | Use |
 |---|---|---|
-| `--bg` | #FFFFFF | Page background |
-| `--surface` | #FAFAFA | Table header, subtle panels |
-| `--text` | #111111 | Body text |
-| `--muted` | #6B7280 | Secondary text |
-| `--border` | #E5E7EB | All borders |
-| `--accent` | #2563EB | Primary button, links, focus ring |
-| `--accent-hover` | #1D4ED8 | Hover |
-| `--success` | #15803D | Success messages, high-confidence label text |
-| `--warning` | #B45309 | Medium confidence, warnings |
-| `--danger` | #B91C1C | Errors, low-priority-to-fix labels, delete |
+| `--bg` | #F3EEE6 | Page background |
+| `--oatmeal` | #E9E2D7 | Panels, table header, chips, secondary surfaces |
+| `--surface` | #FBF8F3 | Cards, inputs |
+| `--sand` | #DCC8B5 | Borders, dividers, active tint |
+| `--ink` | #4D362B | Body text, sidebar and closing band background, bars |
+| `--muted` | #6B5546 | Secondary text |
+| `--coffee` | #8C6F5D | Form field borders, icons. Never small text |
+| `--primary` | #611E2F | Primary buttons, links, active items |
+| `--primary-hover` | #4A1623 | Hover |
+| `--sage` | #A7B19A | Highest bar, decorative accents. Never text on light backgrounds |
+| `--success-text` | #4A5D3F | Success text, high confidence border |
+| `--warning-text` | #8A5A12 | Warning text, medium confidence border |
+| `--danger-text` | #A12B2B | Error text, low confidence border |
 
-**Typography:** `font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`. Base 16 px, line-height 1.6. Scale: h1 28 px / 600, h2 20 px / 600, h3 16 px / 600, small 14 px. Numbers in tables use `font-variant-numeric: tabular-nums`.
+Text on primary buttons is `--surface`. Sidebar text is `--oatmeal`. The active sidebar item is a `--primary` background with `--oatmeal` text and a 3px `--sand` bar on the left. No other colour values are used in rules (only a translucent ink for the mobile scrim and sidebar hover).
 
-**Components:**
-- Buttons: primary (accent fill, white text), secondary (white, 1 px border), danger (text and border in danger colour). 40 px high, 6 px radius.
-- Forms: label above input, 1 px border, 6 px radius, visible focus ring (2 px accent outline), error text in danger colour under the field.
-- Cards/panels: 1 px border, 8 px radius, 20 px padding, no shadow.
-- Tables: full width, `--surface` header, row dividers only, no zebra stripes.
-- Navigation: single top bar, brand name left, text links right, 1 px bottom border.
-- Messages: a bordered bar under the nav with a coloured left border (4 px).
-- Confidence labels: plain text pill ("High 0.82") with coloured text on a white background and a 1 px border. Never rely on colour alone, always show the word.
-- Charts: at most two on the Dashboard (confidence split as horizontal bars, decisions by domain as bars). Greys plus the accent colour only.
+## Contrast (checked with a script, values are ratios)
+Text, minimum 4.5:1:
+- ink on bg 9.68, on surface 10.55, on oatmeal 8.69, on sand 6.91
+- muted on bg 6.03, on surface 6.58, on oatmeal 5.42
+- primary on bg 10.48, on surface 11.43, on oatmeal 9.41; primary-hover on bg 12.71, on oatmeal 11.41
+- surface on primary 11.43, on primary-hover 13.86
+- oatmeal on ink 8.69, on primary 9.41; sand on ink 6.91
+- success-text on surface 6.77, on oatmeal 5.57, on bg 6.21
+- warning-text on surface 5.58, on oatmeal 4.60, on bg 5.12
+- danger-text on surface 6.85, on oatmeal 5.64, on bg 6.28
 
-**Layout rules:** Content max-width 960 px, centred, 24 px side padding. Spacing scale based on 8 px (8, 16, 24, 32, 48). One column on screens under 720 px; stat cards stack. Tables scroll horizontally inside their own container on small screens. Breakpoints: 720 px and 1024 px.
+Non-text, minimum 3:1: coffee on surface 4.36, on bg 4.00, on oatmeal 3.59 (field and button borders); ink bar on oatmeal track 8.69; confidence borders on surface 6.77, 5.58 and 6.85.
+Known exceptions: the sage fill of the highest bar is 1.74:1 on its track, so it carries a 1px ink outline (5.00:1 against the fill) and every bar also shows its number; sand dividers (1.40:1 on the page) are decorative, not component boundaries.
 
-**Screen notes (hierarchy):**
-- Home: one h1 sentence, one paragraph, two buttons (Sign up, Log in), then a 3-step "how it works" list. About text is merged here. No hero image.
-- Dashboard: h1, row of four stat boxes (datasets, processed, pending, decisions), then two small charts, then "Recent decisions" table (5 rows). First-use strip when empty.
-- Datasets: table of name, type, status, uploaded date, decision count, link. Upload button top right (hidden for viewers).
-- Upload: single column form, a required-columns hint that changes with the selected type, and a "Download sample CSV" link.
-- Dataset detail: dataset facts line, then decisions as stacked bordered blocks.
-- Decision block order: title, confidence label, insight, recommendation, explanation, action, impact, confidence reason (in small muted text).
-- Decisions: filters in one row (domain, confidence), then the same decision blocks.
-- Auth screens: centred 400 px form, no side imagery.
-- Error pages: one sentence plus a link back.
+## Typography
+- Headings: `"Iowan Old Style", Charter, Georgia, serif`, weight 600, tight letter-spacing. Wordmark and large numbers too.
+- Body and UI: `system-ui` sans, 16px with 1.6 line height (15px in tables, forms and the app shell chrome).
+- Page title 34px (30px on phones), section title 20px, small text 14px. Small uppercase labels, 12px, letter-spaced, for section names. Tabular numbers for all figures.
 
-**Accessibility:** Text contrast at least 4.5:1 (all tokens above meet this on white). Every input has a visible `<label>`. Full keyboard operation with a visible focus style. Touch targets at least 40 px. Use semantic HTML (`nav`, `main`, `table`, `th scope`). Do not rely on colour alone. Respect `prefers-reduced-motion` (there is almost no motion anyway). Page `lang="en"` and a unique `<title>` per page.
+## Look and feel
+- 1px borders, no shadows, no gradients. Radius: buttons and inputs 6px, chips 4px, cards 8px, the landing mockup frame 10px. Nothing larger.
+- Motion: 120 to 150ms colour changes on hover and focus, a 150ms fade on toasts, nothing else. `prefers-reduced-motion` removes it.
+- Focus: 2px ink ring with 2px offset (oatmeal on dark surfaces).
+- Spacing scale of 8px. Content max width 1100px.
+- Icons: inline SVG, 1.5px stroke, `currentColor`, kept as template partials in `templates/icons/`.
 
-**Interaction states:** Hover: darker accent or `--surface` background. Focus: 2 px accent outline, 2 px offset. Disabled: 50% opacity, `not-allowed` cursor. Loading: button text changes ("Processing...") and the button is disabled. Error: danger text and a 1 px danger border on the field. Success: green left-border message bar.
+## Pages
+- **Landing (`/`):** sticky top bar (serif wordmark, How it works, Features, API docs, Log in as text, Sign up as primary button; logged-in visitors see app links and Logout instead). Left-aligned hero with the label "Decision intelligence for small business", a headline, one sentence, "Get started" and "See how it works", and a static dashboard mockup labelled "Example data". Then: Works with your CSV, How it works (three numbered steps with thin dividers), Features (six items), Anatomy of a decision (large example card with labelled parts), a privacy strip with three facts, and a closing band in ink. All example values come from the three files in `static/samples/`.
+- **Auth:** split layout. Form on the left, an ink panel with one privacy sentence on the right, stacked on phones. Signup shows the Terms and Privacy Policy sentence.
+- **App shell (logged in):** 240px ink sidebar (Dashboard, Datasets, Decisions, Upload for analysts and admins; email, role chip and Logout at the bottom), icon-only on tablets, off-canvas drawer with a menu button on phones. Top bar with breadcrumbs, a page filter field (press `/` to focus it) and a primary "Upload CSV" button.
+- **Dashboard:** date, greeting, four stat blocks, "Confidence split" and "Decisions by domain" bars (ink, highest in sage), recent decisions, and a first-use checklist with sample CSV links until a dataset exists.
+- **Datasets:** table with sticky header on oatmeal, type chip, status chip with a dot, rows, decisions, date and a hover-revealed Open link. A type filter (All, Sales, Marketing, Finance) appears when JavaScript is available.
+- **Upload:** form with a dashed file area (solid and named once a file is chosen) beside a "Required columns" panel and sample links.
+- **Dataset detail and Decisions:** decision cards with a 4px left border by confidence, serif title, labelled Insight, Recommendation, Action and Impact, and the explanation and confidence reason behind a native "Why?" toggle. The Decisions page has domain and confidence filters and removable active-filter chips.
+- **Errors (403, 404, 500):** calm message and a link back. The 500 page is standalone.
+- **Privacy Policy and Terms (`/privacy/`, `/terms/`):** plain language, placeholders `[OWNER NAME]` and `[CONTACT EMAIL]`, a fixed "Last updated" date. Linked from every footer and the signup page.
 
-**Assets needed:** A text wordmark "BizMind" (no logo file). Favicon as a simple inline SVG or a 32 px PNG. Sample CSVs for sales, marketing and finance in `static/samples/`. Remove `static/img/about.jpg` and the dark-theme CSS.
+## Accessibility
+Semantic landmarks, a skip link, one `h1` and a unique title per page, a label on every input, visible focus, 40px or larger controls, tables that scroll inside their own container on small screens, `progress` bars with labels, status shown as words and not colour alone, readable without JavaScript.
+
+## Assets
+Text wordmark. Favicon `static/img/favicon.svg` (a "B" monogram in primary on oatmeal), also served at `/favicon.ico`. Sample CSVs in `static/samples/`.

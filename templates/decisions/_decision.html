@@ -1,19 +1,24 @@
-{# One decision block. Optional: show_dataset=True adds the dataset name. #}
+{# One decision. Optional: show_dataset=True adds the dataset name. #}
 {% load decision_extras %}
-<article class="decision">
+<article class="decision decision-{{ d.confidence|confidence_badge }}" data-search-item>
     <div class="decision-head">
         <h3>{{ d.title }}</h3>
-        <span class="pill {{ d.confidence|confidence_badge }}">{{ d.confidence|confidence_label }} {{ d.confidence|floatformat:2 }}</span>
+        <span class="chip {{ d.confidence|confidence_badge }}">{{ d.confidence|confidence_label }} {{ d.confidence|floatformat:2 }}</span>
     </div>
     <p class="decision-meta">
-        {{ d.domain|title }}{% if show_dataset %} · Dataset: <a href="{% url 'datasets:dataset_detail' d.dataset.pk %}">{{ d.dataset.name }}</a>{% endif %}
+        {{ d.domain|title }}{% if show_dataset %} &middot; Dataset: <a href="{% url 'datasets:dataset_detail' d.dataset.pk %}">{{ d.dataset.name }}</a>{% endif %}
     </p>
-    <dl>
-        {% if d.insight %}<dt>Insight</dt><dd>{{ d.insight }}</dd>{% endif %}
-        <dt>Recommendation</dt><dd>{{ d.recommendation }}</dd>
-        <dt>Explanation</dt><dd>{{ d.explanation }}</dd>
-        {% if d.action %}<dt>Action</dt><dd>{{ d.action }}</dd>{% endif %}
-        {% if d.impact %}<dt>Impact</dt><dd>{{ d.impact }}</dd>{% endif %}
+    <dl class="decision-main">
+        {% if d.insight %}<div><dt>Insight</dt><dd>{{ d.insight }}</dd></div>{% endif %}
+        <div><dt>Recommendation</dt><dd>{{ d.recommendation }}</dd></div>
+        {% if d.action %}<div><dt>Action</dt><dd>{{ d.action }}</dd></div>{% endif %}
+        {% if d.impact %}<div><dt>Impact</dt><dd>{{ d.impact }}</dd></div>{% endif %}
     </dl>
-    {% if d.confidence_reason %}<p class="reason">{{ d.confidence_reason }}</p>{% endif %}
+    <div class="decision-notes">
+        <details class="why">
+            <summary>Why?</summary>
+            <p><strong>Explanation.</strong> {{ d.explanation }}</p>
+            {% if d.confidence_reason %}<p><strong>Confidence.</strong> {{ d.confidence_reason }}</p>{% endif %}
+        </details>
+    </div>
 </article>

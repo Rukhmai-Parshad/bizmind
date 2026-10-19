@@ -1,19 +1,24 @@
-{% extends "base.html" %}
+{% extends "base_app.html" %}
 {% block title %}{{ dataset.name }} | BizMind{% endblock %}
+{% block crumbs %}
+    <li><a href="{% url 'datasets:dataset_list' %}">Datasets</a></li>
+    <li><span aria-current="page">{{ dataset.name }}</span></li>
+{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
         <h1>{{ dataset.name }}</h1>
         <p class="muted">
-            {{ dataset.type|title }} · Uploaded {{ dataset.uploaded_at|date:"d M Y" }} ·
-            {% if dataset.is_processed %}<span class="pill badge-success">Processed</span>{% else %}<span class="pill badge-warning">Pending</span>{% endif %} ·
-            {{ decisions|length }} decision{{ decisions|length|pluralize }}
+            <span class="chip">{{ dataset.type|title }}</span>
+            {% if dataset.is_processed %}<span class="chip chip-dot badge-success">Processed</span>{% else %}<span class="chip chip-dot badge-warning">Pending</span>{% endif %}
+            &nbsp;Uploaded {{ dataset.uploaded_at|date:"d M Y" }} &middot; {{ decisions|length }} decision{{ decisions|length|pluralize }}
         </p>
     </div>
     <a class="btn" href="{% url 'datasets:dataset_list' %}">Back to datasets</a>
 </div>
 
+<p class="result-count" data-result-count hidden></p>
 {% if decisions %}
     <div class="stack">
         {% for d in decisions %}
@@ -21,8 +26,20 @@
         {% endfor %}
     </div>
 {% elif dataset.is_processed %}
-    <div class="empty"><p>No decisions yet. Your data is within the expected ranges.</p></div>
+    <div class="empty">
+        {% include "icons/file.html" %}
+        <div>
+            <h2>Nothing to flag</h2>
+            <p>No decisions yet. Your data is within the expected ranges.</p>
+        </div>
+    </div>
 {% else %}
-    <div class="empty"><p>This dataset has not been processed yet.</p></div>
+    <div class="empty">
+        {% include "icons/file.html" %}
+        <div>
+            <h2>Not processed yet</h2>
+            <p>This dataset has not been processed, so there are no decisions to show.</p>
+        </div>
+    </div>
 {% endif %}
 {% endblock %}
