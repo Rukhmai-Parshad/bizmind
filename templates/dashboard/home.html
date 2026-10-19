@@ -1,176 +1,104 @@
-{% extends "base.html" %}
-
+{% extends "base_app.html" %}
+{% load static decision_extras %}
 {% block title %}Dashboard | BizMind{% endblock %}
+{% block crumbs %}<li><span aria-current="page">Dashboard</span></li>{% endblock %}
 
 {% block content %}
-<div class="dashboard-content">
-
-    <div class="page-header">
-        <h1>Decision Intelligence Dashboard</h1>
-        <p class="subtitle">A data-driven overview of your business decisions.</p>
+<div class="page-header">
+    <div>
+        <p class="today">{% now "l, j F Y" %}</p>
+        <h1>Welcome back</h1>
+        <p class="muted">What your uploaded data says right now.</p>
     </div>
-
-    <div class="grid grid-4">
-        <div class="stat-card info">
-            <h3>Total Datasets</h3>
-            <p>{{ total_datasets }}</p>
-        </div>
-        <div class="stat-card success">
-            <h3>Processed</h3>
-            <p>{{ processed_datasets }}</p>
-        </div>
-        <div class="stat-card warning">
-            <h3>Pending</h3>
-            <p>{{ pending_datasets }}</p>
-        </div>
-        <div class="stat-card info">
-            <h3>Decisions</h3>
-            <p>{{ total_decisions }}</p>
-        </div>
-    </div>
-
-    <div class="action-bar">
-        <a href="{% url 'datasets:upload' %}" class="btn btn-success">Upload Dataset</a>
-        <a href="{% url 'datasets:dataset_list' %}" class="btn btn-primary">View Datasets</a>
-        <a href="{% url 'decisions:filtered' %}" class="btn btn-secondary">Explore Decisions</a>
-    </div>
-
-    {% if has_decisions %}
-        <section class="section">
-            <h2>Analytics</h2>
-
-            {{ confidence_labels|json_script:"confidence-labels" }}
-            {{ confidence_data|json_script:"confidence-data" }}
-            {{ dataset_labels|json_script:"dataset-labels" }}
-            {{ dataset_data|json_script:"dataset-data" }}
-            {{ domain_labels|json_script:"domain-labels" }}
-            {{ domain_data|json_script:"domain-data" }}
-
-            <div class="chart-grid">
-                <div class="card chart-card">
-                    <h3>Decision Confidence</h3>
-                    <div class="chart-box">
-                        <canvas id="confidenceChart"></canvas>
-                    </div>
-                    <div class="confidence-links">
-                        <a href="{% url 'decisions:filtered' %}?confidence=high" class="badge badge-success">High</a>
-                        <a href="{% url 'decisions:filtered' %}?confidence=medium" class="badge badge-warning">Medium</a>
-                        <a href="{% url 'decisions:filtered' %}?confidence=low" class="badge badge-danger">Low</a>
-                    </div>
-                </div>
-
-                <div class="card chart-card">
-                    <h3>Decisions per Dataset</h3>
-                    <div class="chart-box">
-                        <canvas id="datasetChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="card chart-card">
-                    <h3>Decisions by Domain</h3>
-                    <div class="chart-box">
-                        <canvas id="domainChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </section>
-    {% endif %}
-
-    <section class="section">
-        <h2>Recent Decisions</h2>
-
-        {% if recent_decisions %}
-            <div class="list">
-                {% for decision in recent_decisions %}
-                    <div class="list-item">
-                        <strong>{{ decision.title }}</strong>
-                        <p>{{ decision.recommendation }}</p>
-                        <small class="muted">
-                            {{ decision.domain|title }} · {{ decision.dataset.name }}
-                        </small>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="empty-text">No decisions generated yet.</p>
-        {% endif %}
-    </section>
-
-    <section class="section">
-        <h2>Recent Datasets</h2>
-
-        {% if recent_datasets %}
-            <div class="list">
-                {% for dataset in recent_datasets %}
-                    <div class="list-item">
-                        <strong>{{ dataset.name }}</strong>
-                        <p class="subtitle">
-                            {{ dataset.type|title }} · {{ dataset.uploaded_at|date:"d M Y" }}
-                        </p>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="empty-text">No datasets uploaded yet.</p>
-        {% endif %}
-    </section>
-
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<div class="stats">
+    <div class="stat"><span class="stat-value">{{ total_datasets }}</span><span class="stat-label">Datasets</span></div>
+    <div class="stat"><span class="stat-value">{{ processed_datasets }}</span><span class="stat-label">Processed</span></div>
+    <div class="stat"><span class="stat-value">{{ pending_datasets }}</span><span class="stat-label">Pending</span></div>
+    <div class="stat"><span class="stat-value">{{ total_decisions }}</span><span class="stat-label">Decisions</span></div>
+</div>
+
+{% if not total_datasets %}
+    <section class="dash-section">
+        <p class="label">Checklist</p>
+        <h2>Get started in three steps</h2>
+        <ol class="steps compact">
+            <li><div><h3>Download a sample CSV</h3>
+                <p>Pick one:
+                    <a href="{% static 'samples/sales_sample.csv' %}" download>Sales</a>,
+                    <a href="{% static 'samples/marketing_sample.csv' %}" download>Marketing</a> or
+                    <a href="{% static 'samples/finance_sample.csv' %}" download>Finance</a>.</p></div></li>
+            <li><div><h3>Upload it</h3>
+                <p>{% if user.is_admin or user.is_analyst %}<a href="{% url 'datasets:upload' %}">Go to the upload page</a> and choose the matching type.{% else %}Your account can view results but not upload, so ask an analyst or admin to upload the file.{% endif %}</p></div></li>
+            <li><div><h3>Read your decisions</h3>
+                <p>They appear on this page and on the Decisions page.</p></div></li>
+        </ol>
+    </section>
+{% endif %}
+
 {% if has_decisions %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    Chart.defaults.color = "#aeb6d3";
-    Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+    <section class="dash-section">
+        <div class="charts">
+            <div class="panel">
+                <h2>Confidence split</h2>
+                <div class="bar-row">
+                    <a href="{% url 'decisions:filtered' %}?confidence=high">High</a>
+                    <progress{% if confidence_data.0 >= confidence_data.1 and confidence_data.0 >= confidence_data.2 %} class="bar-top"{% endif %} value="{{ confidence_data.0 }}" max="{{ total_decisions }}" aria-label="High confidence decisions">{{ confidence_data.0 }}</progress>
+                    <span class="num">{{ confidence_data.0 }}</span>
+                </div>
+                <div class="bar-row">
+                    <a href="{% url 'decisions:filtered' %}?confidence=medium">Medium</a>
+                    <progress{% if confidence_data.1 > confidence_data.0 and confidence_data.1 >= confidence_data.2 %} class="bar-top"{% endif %} value="{{ confidence_data.1 }}" max="{{ total_decisions }}" aria-label="Medium confidence decisions">{{ confidence_data.1 }}</progress>
+                    <span class="num">{{ confidence_data.1 }}</span>
+                </div>
+                <div class="bar-row">
+                    <a href="{% url 'decisions:filtered' %}?confidence=low">Low</a>
+                    <progress{% if confidence_data.2 > confidence_data.0 and confidence_data.2 > confidence_data.1 %} class="bar-top"{% endif %} value="{{ confidence_data.2 }}" max="{{ total_decisions }}" aria-label="Low confidence decisions">{{ confidence_data.2 }}</progress>
+                    <span class="num">{{ confidence_data.2 }}</span>
+                </div>
+            </div>
 
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: { labels: { color: "#aeb6d3" } }
-        },
-        scales: {
-            x: { ticks: { color: "#8f98b8" }, grid: { color: "rgba(255,255,255,0.06)" } },
-            y: { ticks: { color: "#8f98b8" }, grid: { color: "rgba(255,255,255,0.06)" } }
-        }
-    };
+            <div class="panel">
+                <h2>Decisions by domain</h2>
+                {% for label, count in domain_labels|pair_with:domain_data|dictsortreversed:1 %}
+                    <div class="bar-row">
+                        <a href="{% url 'decisions:filtered' %}?domain={{ label|lower }}">{{ label }}</a>
+                        <progress{% if forloop.first %} class="bar-top"{% endif %} value="{{ count }}" max="{{ total_decisions }}" aria-label="{{ label }} decisions">{{ count }}</progress>
+                        <span class="num">{{ count }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endif %}
 
-    new Chart(document.getElementById("confidenceChart"), {
-        type: "doughnut",
-        data: {
-            labels: JSON.parse(document.getElementById("confidence-labels").textContent),
-            datasets: [{
-                data: JSON.parse(document.getElementById("confidence-data").textContent),
-            }]
-        },
-        options: chartOptions
-    });
-
-    new Chart(document.getElementById("datasetChart"), {
-        type: "bar",
-        data: {
-            labels: JSON.parse(document.getElementById("dataset-labels").textContent),
-            datasets: [{
-                label: "Decisions",
-                data: JSON.parse(document.getElementById("dataset-data").textContent),
-            }]
-        },
-        options: chartOptions
-    });
-
-    new Chart(document.getElementById("domainChart"), {
-        type: "bar",
-        data: {
-            labels: JSON.parse(document.getElementById("domain-labels").textContent),
-            datasets: [{
-                label: "Decisions",
-                data: JSON.parse(document.getElementById("domain-data").textContent),
-            }]
-        },
-        options: chartOptions
-    });
-</script>
+{% if total_datasets %}
+<section class="dash-section">
+    <h2>Recent decisions</h2>
+    {% if recent_decisions %}
+        <ul class="decision-list">
+            {% for d in recent_decisions %}
+                <li data-search-item>
+                    <div>
+                        <span class="title">{{ d.title }}</span>
+                        <span class="meta">{{ d.domain|title }} &middot; <a href="{% url 'datasets:dataset_detail' d.dataset.pk %}">{{ d.dataset.name }}</a></span>
+                    </div>
+                    <span class="chip {{ d.confidence|confidence_badge }}">{{ d.confidence|confidence_label }} {{ d.confidence|floatformat:2 }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+        <p class="result-count" data-result-count hidden></p>
+        <p class="list-more"><a class="text-link" href="{% url 'decisions:filtered' %}">See all decisions{% include "icons/arrow-right.html" %}</a></p>
+    {% else %}
+        <div class="empty">
+            {% include "icons/file.html" %}
+            <div>
+                <h2>Nothing to flag</h2>
+                <p>No decisions yet. Your data is within the expected ranges. Upload another file to check more.</p>
+            </div>
+        </div>
+    {% endif %}
+</section>
 {% endif %}
 {% endblock %}

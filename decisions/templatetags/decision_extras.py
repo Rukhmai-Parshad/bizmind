@@ -29,3 +29,9 @@ def confidence_badge(value):
     elif value >= 0.4:
         return "badge-warning"
     return "badge-danger"
+
+
+@register.filter
+def pair_with(labels, values):
+    """[a, b] | pair_with:[1, 2]  ->  [(a, 1), (b, 2)] (for {% for label, value in ... %})."""
+    return list(zip(labels, values))

@@ -1,0 +1,15 @@
+{% extends "base_public.html" %}
+{% block title %}Page not found | BizMind{% endblock %}
+
+{% block main %}
+<div class="wrap">
+    <div class="notice-page">
+        <p class="label">Error 404</p>
+        <h1>Page not found</h1>
+        <p class="muted">That address does not exist, or it belongs to another account.</p>
+        <div class="btn-row">
+            {% if user.is_authenticated %}<a class="btn btn-primary" href="{% url 'dashboard:home' %}">Back to dashboard</a>{% else %}<a class="btn btn-primary" href="{% url 'core:home' %}">Back to home</a>{% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

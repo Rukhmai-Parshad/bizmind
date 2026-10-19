@@ -3,11 +3,13 @@
 # Converts Django model instances <-> JSON data for the API.
 # ============================================================
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
 # Project models
 from accounts.models import User
 from datasets.models import Dataset
+from datasets.validators import validate_csv_upload
 from sales.models import SalesRecord
 from marketing.models import MarketingRecord
 from finance.models import FinanceRecord
@@ -65,19 +67,36 @@ class DatasetSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
-        """Prevent duplicate datasets for the same user."""
-        request = self.context.get("request")
-        name = attrs.get("name")
-        dataset_type = attrs.get("type")
+        """Prevent duplicate datasets for the same user.
 
-        if request and Dataset.objects.filter(
-            uploaded_by=request.user,
+        On PATCH/PUT the dataset being edited must not count as its own
+        duplicate (S7), and a field that was not sent keeps its current value.
+        """
+        request = self.context.get("request")
+        instance = self.instance
+        name = attrs.get("name", instance.name if instance else None)
+        dataset_type = attrs.get("type", instance.type if instance else None)
+
+        duplicates = Dataset.objects.filter(
+            uploaded_by=request.user if request else None,
             name=name,
             type=dataset_type,
-        ).exists():
+        )
+        if instance:
+            duplicates = duplicates.exclude(pk=instance.pk)
+
+        if request and duplicates.exists():
             raise serializers.ValidationError(
                 {"name": ["A dataset with this name and type already exists."]}
             )
+
+        # Same file rules as the web form (extension, size, rows, columns).
+        file = attrs.get("file")
+        if file is not None:
+            try:
+                validate_csv_upload(file, dataset_type)
+            except DjangoValidationError as exc:
+                raise serializers.ValidationError({"file": exc.messages})
 
         return attrs
 
@@ -87,9 +106,7 @@ class DatasetSerializer(serializers.ModelSerializer):
 # ============================================================
 
 class SalesRecordSerializer(serializers.ModelSerializer):
-    """Handles sales record CRUD operations."""
-
-    revenue = serializers.FloatField()
+    """Read-only view of sales records. Revenue is computed by the server."""
 
     class Meta:
         model = SalesRecord
@@ -104,22 +121,7 @@ class SalesRecordSerializer(serializers.ModelSerializer):
             "revenue",
             "created_at",
         ]
-        read_only_fields = [
-            "id",
-            "created_at",
-        ]
-
-    def validate_dataset(self, dataset):
-        """Prevent access to another user's dataset."""
-
-        request = self.context.get("request")
-
-        if request and dataset.uploaded_by != request.user:
-            raise serializers.ValidationError(
-                "You do not have permission to use this dataset."
-            )
-
-        return dataset
+        read_only_fields = fields
 
 
 # ============================================================
@@ -127,7 +129,7 @@ class SalesRecordSerializer(serializers.ModelSerializer):
 # ============================================================
 
 class MarketingRecordSerializer(serializers.ModelSerializer):
-    """Handles marketing record CRUD operations."""
+    """Read-only view of marketing records."""
 
     class Meta:
         model = MarketingRecord
@@ -144,22 +146,7 @@ class MarketingRecordSerializer(serializers.ModelSerializer):
             "revenue",
             "created_at",
         ]
-        read_only_fields = [
-            "id",
-            "created_at",
-        ]
-
-    def validate_dataset(self, dataset):
-        """Prevent access to another user's dataset."""
-
-        request = self.context.get("request")
-
-        if request and dataset.uploaded_by != request.user:
-            raise serializers.ValidationError(
-                "You do not have permission to use this dataset."
-            )
-
-        return dataset
+        read_only_fields = fields
 
 
 # ============================================================
@@ -167,7 +154,7 @@ class MarketingRecordSerializer(serializers.ModelSerializer):
 # ============================================================
 
 class FinanceRecordSerializer(serializers.ModelSerializer):
-    """Handles finance record CRUD operations."""
+    """Read-only view of finance records."""
 
     class Meta:
         model = FinanceRecord
@@ -181,22 +168,7 @@ class FinanceRecordSerializer(serializers.ModelSerializer):
             "type",
             "created_at",
         ]
-        read_only_fields = [
-            "id",
-            "created_at",
-        ]
-
-    def validate_dataset(self, dataset):
-        """Prevent access to another user's dataset."""
-
-        request = self.context.get("request")
-
-        if request and dataset.uploaded_by != request.user:
-            raise serializers.ValidationError(
-                "You do not have permission to use this dataset."
-            )
-
-        return dataset
+        read_only_fields = fields
 
 
 # ============================================================

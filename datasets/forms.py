@@ -1,20 +1,17 @@
-from pathlib import Path
-
 from django import forms
+from django.core.exceptions import ValidationError
 
 from .models import Dataset
-from .csv_utils import read_and_normalize_csv
-from sales.csv import REQUIRED_COLUMNS as SALES_COLUMNS
-from marketing.csv import REQUIRED_COLUMNS as MARKETING_COLUMNS
-from finance.csv import REQUIRED_COLUMNS as FINANCE_COLUMNS
+from .validators import (
+    REQUIRED_COLUMNS_BY_TYPE,
+    validate_csv_content,
+    validate_file_basics,
+)
 
 
 class DatasetUploadForm(forms.ModelForm):
-    REQUIRED_COLUMNS = {
-        "sales": sorted(SALES_COLUMNS),
-        "marketing": sorted(MARKETING_COLUMNS),
-        "finance": sorted(FINANCE_COLUMNS),
-    }
+    # Kept as an attribute for any code that reads it; the rules live in validators.py.
+    REQUIRED_COLUMNS = REQUIRED_COLUMNS_BY_TYPE
 
     class Meta:
         model = Dataset
@@ -22,15 +19,7 @@ class DatasetUploadForm(forms.ModelForm):
 
     def clean_file(self):
         file = self.cleaned_data["file"]
-        extension = Path(file.name).suffix.lower()
-
-        if extension != ".csv":
-            raise forms.ValidationError("Only CSV files are supported.")
-
-        max_size = 10 * 1024 * 1024
-        if file.size > max_size:
-            raise forms.ValidationError("CSV file must be 10 MB or smaller.")
-
+        validate_file_basics(file)
         return file
 
     def clean(self):
@@ -50,18 +39,9 @@ class DatasetUploadForm(forms.ModelForm):
         file = cleaned_data.get("file")
         if file and dataset_type:
             try:
-                df = read_and_normalize_csv(file)
-                file.seek(0)
-                missing = sorted(set(self.REQUIRED_COLUMNS[dataset_type]) - set(df.columns))
-                if missing:
-                    self.add_error(
-                        "file",
-                        "Missing required columns: " + ", ".join(missing)
-                    )
-            except Exception as exc:
-                self.add_error("file", f"CSV could not be validated: {exc}")
-            finally:
-                file.seek(0)
+                validate_csv_content(file, dataset_type)
+            except ValidationError as exc:
+                self.add_error("file", exc)
 
         return cleaned_data
 

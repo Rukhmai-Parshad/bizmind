@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
@@ -46,7 +47,9 @@ INSTALLED_APPS = [
 
     # Third-party apps
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',  # remembers used/revoked refresh tokens
     'drf_spectacular',
+    'drf_spectacular_sidecar',  # self-hosted Swagger UI files (no CDN)
 
     # Local apps
     'accounts',
@@ -62,6 +65,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "bizmind.middleware.ContentSecurityPolicyMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -146,6 +150,20 @@ STORAGES = {
     },
 }
 
+# Rate-limit counters (login, signup, token endpoints) live here. LocMemCache is
+# per process: fine for the single gunicorn worker used today; with several
+# workers each would count separately, so move to a shared cache then.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    },
+}
+
+# How many trusted reverse proxies sit in front of the app (Render, nginx...).
+# 0 = ignore X-Forwarded-For and use the connecting address. Set this correctly
+# in production, otherwise IP-based limits see every user as the same address.
+NUM_PROXIES = int(os.getenv("NUM_PROXIES", "0"))
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -159,6 +177,29 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
+
+# Sent with every response: another site only learns that the request came from
+# BizMind itself, never the full URL (which can contain dataset ids).
+SECURE_REFERRER_POLICY = "same-origin"
+
+# Content-Security-Policy: tells the browser which sources may load scripts,
+# styles, fonts and images, and what the page may submit forms to or be framed by.
+# Everything is self-hosted (static/css/app.css, static/js/app.js), so every
+# source is 'self' only: no CDN hosts and no 'unsafe-inline'. That also means
+# templates must not contain inline <script>, <style> or style="..." attributes.
+# bizmind/test_security_headers.py fails if this policy or a template regresses.
+CONTENT_SECURITY_POLICY = {
+    "default-src": ["'self'"],
+    "script-src": ["'self'"],
+    "style-src": ["'self'"],
+    "font-src": ["'self'"],
+    "img-src": ["'self'", "data:"],  # data: is used for the inline SVG favicon
+    "connect-src": ["'self'"],
+    "object-src": ["'none'"],
+    "base-uri": ["'self'"],
+    "form-action": ["'self'"],
+    "frame-ancestors": ["'none'"],
+}
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
@@ -179,9 +220,28 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # Limits for the token endpoints (api/throttles.py).
+    "DEFAULT_THROTTLE_RATES": {
+        "auth_ip": "30/min",      # per IP address
+        "auth_account": "5/min",  # per account (email in the request body)
+    },
+    "NUM_PROXIES": NUM_PROXIES,
+}
+
+SIMPLE_JWT = {
+    # Short-lived access token: if it leaks, it is useless after 15 minutes.
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    # Every refresh gives a NEW refresh token and the old one is blacklisted,
+    # so a stolen refresh token stops working as soon as the real client refreshes.
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 
 SPECTACULAR_SETTINGS = {
+    # Serve Swagger UI from our own static files instead of a CDN (CSP is 'self' only).
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "TITLE": "BizMind API",
     "DESCRIPTION": (
         "REST API for BizMind — a Unified Decision Intelligence Platform "
@@ -191,3 +251,6 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
 }
+
+# Used only by "manage.py test": temporary MEDIA_ROOT and test-safe settings.
+TEST_RUNNER = "bizmind.test_runner.BizMindTestRunner"

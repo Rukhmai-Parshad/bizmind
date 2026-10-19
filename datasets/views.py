@@ -6,7 +6,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import DatasetUploadForm
 from .models import Dataset
-from .services import process_dataset
+from .services import save_and_process_dataset
+from .validators import can_upload
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +47,7 @@ def dataset_detail(request, pk):
 
 @login_required
 def upload_dataset(request):
-    if not (request.user.is_admin() or request.user.is_analyst()):
+    if not can_upload(request.user):
         messages.error(request, "Your account has read-only access.")
         return redirect("dashboard:home")
 
@@ -54,23 +55,18 @@ def upload_dataset(request):
         form = DatasetUploadForm(request.POST, request.FILES, user=request.user)
 
         if form.is_valid():
+            dataset = form.save(commit=False)
+            dataset.uploaded_by = request.user
+
             try:
-                dataset = form.save(commit=False)
-                dataset.uploaded_by = request.user
-                dataset.save()
-                process_dataset(dataset)
+                # All or nothing: on any failure the row, records and file are gone.
+                save_and_process_dataset(dataset)
 
             except ValueError as exc:
-                logger.warning("Dataset validation failed for dataset %s: %s", dataset.pk, exc)
-                if dataset.file:
-                    dataset.file.delete(save=False)
-                dataset.delete()
+                logger.warning("Dataset validation failed for %r: %s", dataset.name, exc)
                 messages.error(request, f"Dataset could not be processed: {exc}")
             except Exception:
-                logger.exception("Dataset processing failed for dataset %s", dataset.pk)
-                if dataset.file:
-                    dataset.file.delete(save=False)
-                dataset.delete()
+                logger.exception("Dataset processing failed for %r", dataset.name)
                 messages.error(
                     request,
                     "The dataset could not be processed because of an unexpected error. "

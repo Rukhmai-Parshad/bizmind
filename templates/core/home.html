@@ -1,64 +1,212 @@
-{% extends "core/base_public.html" %}
-{% block title %}BizMind | Decision Intelligence{% endblock %}
+{% extends "base_public.html" %}
+{% block title %}BizMind: decisions from your sales, marketing or finance CSV{% endblock %}
 
-{% block content %}
-
-<section id="home" class="hero-section">
-    <div class="hero-box">
-        <span class="hero-badge">Decision Intelligence Platform</span>
-
-        <h1>
-            Turn Raw Data into
-            <span>Confident Business Decisions</span>
-        </h1>
-
-        <p>
-            BizMind transforms datasets into explainable,
-            rule-backed decisions you can actually act on.
-        </p>
-
-        <div class="hero-actions">
-            <a href="{% url 'accounts:login' %}" class="btn-primary">
-                Get Started
-            </a>
-            <a href="{% url 'core:about' %}" class="btn-outline">
-                How BizMind Works
-            </a>
+{% block main %}
+<div class="wrap">
+    <section class="hero">
+        <div>
+            <p class="label label-primary">Rule-based decisions for small business</p>
+            <h1>Your CSV, turned into a short list of decisions.</h1>
+            <p class="lead">Upload a sales, marketing or finance CSV. BizMind applies fixed rules and lists what to do next, with the reason and a confidence score.</p>
+            <div class="btn-row">
+                {% if user.is_authenticated %}
+                    <a class="btn btn-primary btn-large" href="{% url 'dashboard:home' %}">Go to dashboard{% include "icons/arrow-right.html" %}</a>
+                {% else %}
+                    <a class="btn btn-primary btn-large" href="{% url 'accounts:signup' %}">Get started</a>
+                {% endif %}
+                <a class="btn btn-large" href="#how-it-works">See how it works</a>
+            </div>
         </div>
+
+        <div>
+            <div class="mock" role="group" aria-label="Example dashboard">
+                <div class="mock-grid">
+                    <div class="mock-side" aria-hidden="true">
+                        <span class="active">{% include "icons/dashboard.html" %}</span>
+                        {% include "icons/datasets.html" %}
+                        {% include "icons/decisions.html" %}
+                    </div>
+                    <div class="mock-main">
+                        <div class="mock-bar"><span class="mock-title">Dashboard</span><span class="chip">Analyst</span></div>
+                        <div class="mock-stats">
+                            <div><strong>3</strong><span>Datasets</span></div>
+                            <div><strong>5</strong><span>Decisions</span></div>
+                            <div><strong>3</strong><span>High confidence</span></div>
+                        </div>
+                        <div class="mock-card">
+                            <div class="t"><span>Underperforming Sales Region</span><span class="chip badge-success">High 0.91</span></div>
+                            <p>West contributes only 1.78% of total revenue, below the 20% benchmark.</p>
+                        </div>
+                        <div class="mock-card low">
+                            <div class="t"><span>Poor Marketing ROI</span><span class="chip badge-danger">Low 0.11</span></div>
+                            <p>ROAS 1.77 is below the target of 2.00.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="example-tag"><strong>Example data.</strong> Made from the three sample CSV files, uploaded together.</p>
+        </div>
+    </section>
+
+    <section class="section" aria-labelledby="works-with">
+        <div class="section-head">
+            <p class="label">Supported files</p>
+            <h2 id="works-with">Works with your CSV</h2>
+        </div>
+        <div class="csv-strip">
+            <div>
+                <h3>Sales</h3>
+                <p>Needs date, product, region, units sold and unit price. Rules look at total revenue, weak regions and product concentration.</p>
+            </div>
+            <div>
+                <h3>Marketing</h3>
+                <p>Needs date, campaign, channel, impressions, clicks, conversions, spend and revenue. Rules look at click rate, return on ad spend and the weakest channel.</p>
+            </div>
+            <div>
+                <h3>Finance</h3>
+                <p>Needs date, category, department, amount and type (income or expense). Rules look at net loss, the expense ratio and the biggest expense category.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="how-it-works" aria-labelledby="how-title">
+        <div class="section-head">
+            <p class="label">Three steps</p>
+            <h2 id="how-title">How it works</h2>
+        </div>
+        <ol class="steps">
+            <li>
+                <div>
+                    <h3>Upload a CSV</h3>
+                    <p>Choose sales, marketing or finance, then pick the file. Files up to 10 MB and 50,000 rows are accepted, and the upload page lists the columns each type needs.</p>
+                </div>
+            </li>
+            <li>
+                <div>
+                    <h3>Rules run automatically</h3>
+                    <p>Fixed, documented rules check your data as soon as the upload is read. There is no model to train and nothing to configure.</p>
+                </div>
+            </li>
+            <li>
+                <div>
+                    <h3>Read your decisions</h3>
+                    <p>Each decision has a recommendation, an action, the reason it was raised and a confidence score between 0 and 1.</p>
+                </div>
+            </li>
+        </ol>
+    </section>
+
+    <section class="section" id="features" aria-labelledby="features-title">
+        <div class="section-head">
+            <p class="label">What you get</p>
+            <h2 id="features-title">Features</h2>
+        </div>
+        <div class="features">
+            <div class="feature">
+                {% include "icons/lightbulb.html" %}
+                <h3>Explained decisions</h3>
+                <p>Every decision carries the rule's own explanation, such as which region is below the 20% benchmark.</p>
+            </div>
+            <div class="feature">
+                {% include "icons/gauge.html" %}
+                <h3>Confidence score</h3>
+                <p>A score from 0 to 1 with a one line reason, shown as High, Medium or Low.</p>
+            </div>
+            <div class="feature">
+                {% include "icons/lock.html" %}
+                <h3>Private by default</h3>
+                <p>Datasets and decisions belong to the account that uploaded them. Other accounts cannot open them.</p>
+            </div>
+            <div class="feature">
+                {% include "icons/layers.html" %}
+                <h3>Sales, marketing and finance rules</h3>
+                <p>Three rules for each area, nine in total.</p>
+            </div>
+            <div class="feature">
+                {% include "icons/code.html" %}
+                <h3>Secure REST API</h3>
+                <p>Sign in with JWT tokens (access tokens last 15 minutes). Roles are enforced and token requests are rate limited.</p>
+            </div>
+            <div class="feature">
+                {% include "icons/download.html" %}
+                <h3>Sample files to try</h3>
+                <p>Three sample CSVs, one per area, so you can see real decisions before using your own data.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" aria-labelledby="anatomy-title">
+        <div class="section-head">
+            <p class="label">Example data</p>
+            <h2 id="anatomy-title">Anatomy of a decision</h2>
+            <p>This card was produced from the sales sample file. Each part has one job.</p>
+        </div>
+        <article class="decision decision-badge-success">
+            <div class="decision-head">
+                <h3>Top Performing Product</h3>
+                <span class="chip badge-success">High Confidence 0.72</span>
+            </div>
+            <p class="decision-meta">Sales &middot; sales_sample.csv</p>
+            <div class="anatomy">
+                <div class="anatomy-row">
+                    <p class="label">Insight</p>
+                    <div><p>Moderate signals detected; trend is emerging.</p><p class="note">A plain summary of how strong the signal is.</p></div>
+                </div>
+                <div class="anatomy-row">
+                    <p class="label">Recommendation</p>
+                    <div><p>Prioritize and scale sales of Laptop.</p><p class="note">What the rule suggests you do.</p></div>
+                </div>
+                <div class="anatomy-row">
+                    <p class="label">Action</p>
+                    <div><p>Monitor closely and prepare corrective actions.</p><p class="note">How urgently to act.</p></div>
+                </div>
+                <div class="anatomy-row">
+                    <p class="label">Impact</p>
+                    <div><p>Revenue and growth risk if ignored.</p><p class="note">What is at stake.</p></div>
+                </div>
+                <div class="anatomy-row">
+                    <p class="label">Confidence and why</p>
+                    <div><p>0.72, because the confidence reflects the product's share of total revenue.</p><p class="note">Explanation: Laptop contributes 72.06% of total revenue, indicating strong concentration.</p></div>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section class="section" aria-labelledby="privacy-title">
+        <div class="section-head">
+            <p class="label">Privacy</p>
+            <h2 id="privacy-title">What happens to your data</h2>
+        </div>
+        <div class="facts">
+            <div>
+                {% include "icons/file.html" %}
+                <h3>Uploads are deleted</h3>
+                <p>The CSV file is removed from the server once it has been read. Only the parsed rows and the decisions stay in your account.</p>
+            </div>
+            <div>
+                {% include "icons/lock.html" %}
+                <h3>Your account only</h3>
+                <p>Datasets, rows and decisions are filtered by owner in the app and in the API.</p>
+            </div>
+            <div>
+                {% include "icons/shield.html" %}
+                <h3>No third party scripts</h3>
+                <p>Pages load only BizMind's own scripts, styles and fonts. There are no analytics or ad trackers.</p>
+            </div>
+        </div>
+        <p class="legal-note"><a href="{% url 'core:privacy' %}">Read the Privacy Policy</a></p>
+    </section>
+</div>
+
+<section class="cta-band" aria-labelledby="cta-title">
+    <div class="wrap">
+        <h2 id="cta-title">Try it with a sample file.</h2>
+        <p>Create an account, upload one of the sample CSVs and see what a decision looks like.</p>
+        {% if user.is_authenticated %}
+            <a class="btn btn-large" href="{% url 'dashboard:home' %}">Go to dashboard</a>
+        {% else %}
+            <a class="btn btn-large" href="{% url 'accounts:signup' %}">Create an account</a>
+        {% endif %}
     </div>
 </section>
-
-
-<section id="features">
-    <h1>Why BizMind?</h1>
-
-    <div class="feature-grid">
-
-        <div class="feature-card">
-            <i class="fas fa-brain"></i>
-            <h3>Decision Intelligence</h3>
-            <p>Not dashboards — actionable decisions.</p>
-        </div>
-
-        <div class="feature-card">
-            <i class="fas fa-check-circle"></i>
-            <h3>Confidence Scoring</h3>
-            <p>Every decision shows how reliable it is.</p>
-        </div>
-
-        <div class="feature-card">
-            <i class="fas fa-layer-group"></i>
-            <h3>Domain Aware</h3>
-            <p>Sales, Marketing & Finance insights.</p>
-        </div>
-
-        <div class="feature-card">
-            <i class="fas fa-eye"></i>
-            <h3>Explainable Decisions</h3>
-            <p>Understand why a decision exists.</p>
-        </div>
-
-    </div>
-</section>
-
 {% endblock %}

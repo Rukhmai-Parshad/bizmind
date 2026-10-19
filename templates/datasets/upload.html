@@ -1,78 +1,62 @@
-{% extends 'base.html' %}
-
-{% block title %}Upload Dataset | BizMind{% endblock %}
+{% extends "base_app.html" %}
+{% load static %}
+{% block title %}Upload dataset | BizMind{% endblock %}
+{% block crumbs %}
+    <li><a href="{% url 'datasets:dataset_list' %}">Datasets</a></li>
+    <li><span aria-current="page">Upload</span></li>
+{% endblock %}
+{% block topbar_action %}{% endblock %}
 
 {% block content %}
-<div class="container upload-page">
-    <div class="page-header">
-        <h1>Upload New Dataset</h1>
-        <p class="subtitle">Upload a CSV file to generate explainable business decisions.</p>
-    </div>
-
-    <div class="upload-layout">
-        <div class="card upload-card">
-            <form method="post" enctype="multipart/form-data" novalidate>
-                {% csrf_token %}
-
-                {% if form.non_field_errors %}
-                    <div class="alert alert-error">{{ form.non_field_errors }}</div>
-                {% endif %}
-
-                {% for field in form %}
-                    <div class="form-field">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}<small class="field-help">{{ field.help_text }}</small>{% endif %}
-                        {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
-                    </div>
-                {% endfor %}
-
-                <div class="action-bar">
-                    <button type="submit" class="btn btn-success">Upload Dataset</button>
-                    <a href="{% url 'datasets:dataset_list' %}" class="btn btn-primary">Cancel</a>
-                </div>
-            </form>
-        </div>
-
-        <aside class="card schema-card">
-            <h2>CSV Requirements</h2>
-            <p class="subtitle">Required columns for the selected dataset type:</p>
-
-            <div class="schema-block" data-schema="sales">
-                <h3>Sales</h3>
-                <code>date, product, region, units_sold, unit_price</code>
-            </div>
-            <div class="schema-block" data-schema="marketing">
-                <h3>Marketing</h3>
-                <code>date, campaign, channel, impressions, clicks, conversions, spend, revenue</code>
-            </div>
-            <div class="schema-block" data-schema="finance">
-                <h3>Finance</h3>
-                <code>date, category, department, amount, type</code>
-                <small><strong>type:</strong> income or expense</small>
-            </div>
-
-            <p class="schema-note">Extra columns are allowed. Required columns must be present and contain valid values.</p>
-        </aside>
+<div class="page-header">
+    <div>
+        <h1>Upload dataset</h1>
+        <p class="muted">Upload a CSV file to generate decisions. Maximum 10 MB and 50,000 rows.</p>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-    const typeField = document.getElementById("id_type");
-    const schemas = document.querySelectorAll("[data-schema]");
+<div class="upload-grid">
+    <form method="post" enctype="multipart/form-data" data-loading-text="Processing..." class="panel">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
 
-    function updateSchema() {
-        const selected = typeField ? typeField.value : "";
-        schemas.forEach((schema) => {
-            schema.hidden = schema.dataset.schema !== selected;
-        });
-    }
+        {% for field in form %}
+            <div class="form-field{% if field.errors %} has-error{% endif %}">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.name == 'file' %}<p class="file-name" data-file-name></p>{% endif %}
+                {% if field.help_text %}<span class="field-help">{{ field.help_text }}</span>{% endif %}
+                {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+            </div>
+        {% endfor %}
 
-    if (typeField) {
-        typeField.addEventListener("change", updateSchema);
-        updateSchema();
-    }
-</script>
+        <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Upload</button>
+            <a class="btn" href="{% url 'datasets:dataset_list' %}">Cancel</a>
+        </div>
+    </form>
+
+    <section class="panel panel-muted requirements" aria-labelledby="req-title">
+        <p class="label">Before you upload</p>
+        <h2 id="req-title">Required columns</h2>
+        <p class="muted small">Extra columns are allowed. The required ones must be present and hold valid values.</p>
+        <dl>
+            <div data-schema="sales">
+                <dt>Sales</dt>
+                <dd><code>date, product, region, units_sold, unit_price</code><br>
+                    <a href="{% static 'samples/sales_sample.csv' %}" download>{% include "icons/download.html" %}Download sample CSV</a></dd>
+            </div>
+            <div data-schema="marketing">
+                <dt>Marketing</dt>
+                <dd><code>date, campaign, channel, impressions, clicks, conversions, spend, revenue</code><br>
+                    <a href="{% static 'samples/marketing_sample.csv' %}" download>{% include "icons/download.html" %}Download sample CSV</a></dd>
+            </div>
+            <div data-schema="finance">
+                <dt>Finance</dt>
+                <dd><code>date, category, department, amount, type</code> where type is <code>income</code> or <code>expense</code><br>
+                    <a href="{% static 'samples/finance_sample.csv' %}" download>{% include "icons/download.html" %}Download sample CSV</a></dd>
+            </div>
+        </dl>
+    </section>
+</div>
 {% endblock %}

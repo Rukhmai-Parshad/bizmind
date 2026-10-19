@@ -1,100 +1,76 @@
-{% extends "base.html" %}
-{% load decision_extras %}
+{% extends "base_app.html" %}
+{% block title %}Decisions | BizMind{% endblock %}
+{% block crumbs %}<li><span aria-current="page">Decisions</span></li>{% endblock %}
 
 {% block content %}
-
-<!-- ===================== -->
-<!-- PAGE HEADER -->
-<!-- ===================== -->
 <div class="page-header">
-    <h1>Filtered Decisions</h1>
-
-    <p class="subtitle">
-        Decisions derived from your data insights
-    </p>
-
-    <div class="filter-summary">
-        {% if selected_domain %}
-            <span class="pill pill-domain">
-                Domain: {{ selected_domain|title }}
-            </span>
-        {% endif %}
-
-        {% if selected_confidence %}
-            <span class="pill pill-confidence">
-                Confidence: {{ selected_confidence|title }}
-            </span>
-        {% endif %}
-    </div>
-
-    <div class="action-bar">
-        <a href="{% url 'dashboard:home' %}" class="btn btn-secondary">
-            ← Back to Dashboard
-        </a>
+    <div>
+        <h1>Decisions</h1>
+        <p class="muted">Every decision from your datasets. Filter by area or by how confident the rule is.</p>
     </div>
 </div>
 
-<!-- ===================== -->
-<!-- DECISION LIST -->
-<!-- ===================== -->
-{% if decisions %}
-    <div class="decision-grid">
-
-        {% for d in decisions %}
-            <div class="decision-card">
-
-                <!-- TITLE -->
-                <h3 class="decision-title">
-                    {{ d.title }}
-                </h3>
-
-                <!-- META INFO -->
-                <div class="decision-meta">
-
-                    <span class="badge {{ d.confidence|confidence_badge }}">
-                        {{ d.confidence|confidence_label }}
-                    </span>
-
-                    <span class="meta-text">
-                        Domain: <strong>{{ d.domain|title }}</strong>
-                    </span>
-
-                </div>
-
-                <!-- RECOMMENDATION -->
-                <div class="decision-section">
-                    <h4>Recommendation</h4>
-                    <p>{{ d.recommendation }}</p>
-                </div>
-
-                <!-- IMPACT -->
-                <div class="decision-section impact">
-                    <h4>Business Impact</h4>
-                    <p>{{ d.impact }}</p>
-                </div>
-
-                <!-- FOOTER -->
-                <div class="decision-footer">
-                    <small class="muted">
-                        Based on dataset: <strong>{{ d.dataset.name }}</strong>
-                    </small>
-                </div>
-
-            </div>
-        {% endfor %}
-
+<form method="get" class="filters" action="{% url 'decisions:filtered' %}">
+    <div class="form-field">
+        <label for="filter-domain">Domain</label>
+        <select id="filter-domain" name="domain">
+            <option value=""{% if not selected_domain %} selected{% endif %}>All domains</option>
+            <option value="sales"{% if selected_domain == 'sales' %} selected{% endif %}>Sales</option>
+            <option value="marketing"{% if selected_domain == 'marketing' %} selected{% endif %}>Marketing</option>
+            <option value="finance"{% if selected_domain == 'finance' %} selected{% endif %}>Finance</option>
+        </select>
     </div>
-{% else %}
-    <div class="empty-state">
-        <h3>No decisions found</h3>
-        <p>
-            Try adjusting filters or upload more datasets to generate insights.
-        </p>
+    <div class="form-field">
+        <label for="filter-confidence">Confidence</label>
+        <select id="filter-confidence" name="confidence">
+            <option value=""{% if not selected_confidence %} selected{% endif %}>All levels</option>
+            <option value="high"{% if selected_confidence == 'high' %} selected{% endif %}>High</option>
+            <option value="medium"{% if selected_confidence == 'medium' %} selected{% endif %}>Medium</option>
+            <option value="low"{% if selected_confidence == 'low' %} selected{% endif %}>Low</option>
+        </select>
+    </div>
+    <div class="btn-row">
+        <button type="submit" class="btn btn-primary">Apply filters</button>
+        <a class="btn" href="{% url 'decisions:filtered' %}">Clear</a>
+    </div>
+</form>
 
-        <a href="{% url 'datasets:upload' %}" class="btn btn-primary">
-            Upload Dataset
-        </a>
+{% if selected_domain or selected_confidence %}
+    <div class="active-filters">
+        <span>Active filters:</span>
+        {% if selected_domain %}
+            <a class="chip chip-filter" href="{% url 'decisions:filtered' %}{% if selected_confidence %}?confidence={{ selected_confidence|urlencode }}{% endif %}">Domain: {{ selected_domain|title }}{% include "icons/close.html" %}<span class="sr-only">Remove domain filter</span></a>
+        {% endif %}
+        {% if selected_confidence %}
+            <a class="chip chip-filter" href="{% url 'decisions:filtered' %}{% if selected_domain %}?domain={{ selected_domain|urlencode }}{% endif %}">Confidence: {{ selected_confidence|title }}{% include "icons/close.html" %}<span class="sr-only">Remove confidence filter</span></a>
+        {% endif %}
     </div>
 {% endif %}
 
+<p class="result-count" data-result-count hidden></p>
+{% if decisions %}
+    <div class="stack">
+        {% for d in decisions %}
+            {% include "decisions/_decision.html" with show_dataset=True %}
+        {% endfor %}
+    </div>
+{% elif selected_domain or selected_confidence %}
+    <div class="empty">
+        {% include "icons/file.html" %}
+        <div>
+            <h2>No match</h2>
+            <p>No decisions match these filters. Try a different combination, or clear them.</p>
+            <div class="btn-row"><a class="btn" href="{% url 'decisions:filtered' %}">Clear filters</a></div>
+        </div>
+    </div>
+{% else %}
+    <div class="empty">
+        {% include "icons/file.html" %}
+        <div>
+            <h2>Nothing to flag</h2>
+            <p>No decisions yet. Your data is within the expected ranges, or you have not uploaded a file.</p>
+            <div class="btn-row"><a class="btn btn-primary" href="{% url 'datasets:dataset_list' %}">Go to datasets</a></div>
+        </div>
+    </div>
+{% endif %}
 {% endblock %}
