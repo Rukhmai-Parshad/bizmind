@@ -29,8 +29,10 @@ class NewPagesTests(TestCase):
         for url in ("/privacy/", "/terms/"):
             html = self.client.get(url).content.decode()
             with self.subTest(url=url):
-                self.assertIn("[OWNER NAME]", html)
-                self.assertIn("[CONTACT EMAIL]", html)
+                self.assertIn("Rukhmai Parshad", html)
+                self.assertIn("rukhmaiparshad@gmail.com", html)
+                self.assertNotIn("[OWNER NAME]", html)
+                self.assertNotIn("[CONTACT EMAIL]", html)
                 self.assertIn("Last updated: 18 October 2026", html)
 
     def test_privacy_page_states_what_the_code_really_does(self):
@@ -86,7 +88,7 @@ class FaviconTests(TestCase):
 class LandingTests(TestCase):
     def test_landing_sections_exist(self):
         html = self.client.get("/").content.decode()
-        for text in ("Decision intelligence for small business", "Works with your CSV", "How it works",
+        for text in ("Rule-based decisions for small business", "Works with your CSV", "How it works",
                      "Features", "Anatomy of a decision", "Example data", "See how it works",
                      "Explained decisions", "Confidence score", "Private by default",
                      "Sales, marketing and finance rules", "Secure REST API", "Sample files to try"):
