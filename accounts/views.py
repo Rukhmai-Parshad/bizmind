@@ -1,10 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_POST
 
 from . import ratelimit
-from .forms import LoginForm, SignupForm
+from decisions.models import Decision
+
+from .forms import DeleteAccountForm, LoginForm, SignupForm
+from .services import delete_account as erase_account
 
 
 def signup(request):
@@ -65,3 +69,51 @@ def user_logout(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect("accounts:login")
+
+
+@login_required
+def account_settings(request):
+    user = request.user
+    return render(
+        request,
+        "accounts/settings.html",
+        {
+            "dataset_count": user.datasets.count(),
+            "decision_count": Decision.objects.filter(dataset__uploaded_by=user).count(),
+            "can_delete": not (user.is_staff or user.is_superuser),
+        },
+    )
+
+
+@login_required
+def delete_account(request):
+    """Confirmation page (GET) and erasure (POST). Needs the password and a tick."""
+    user = request.user
+
+    if user.is_staff or user.is_superuser:
+        messages.error(
+            request,
+            "Staff accounts cannot be deleted here. Ask another administrator to remove it in the admin site.",
+        )
+        return redirect("accounts:settings")
+
+    if request.method == "POST":
+        form = DeleteAccountForm(user, request.POST)
+
+        if ratelimit.login_is_blocked(request, user.email):
+            form.full_clean()
+            form.add_error(None, ratelimit.LOGIN_BLOCKED_MESSAGE)
+            return render(request, "accounts/delete_account.html", {"form": form}, status=429)
+
+        if form.is_valid():
+            erase_account(user)
+            logout(request)
+            messages.success(request, "Your account and all its data have been deleted.")
+            return redirect("core:home")
+
+        if form.has_error("password", code="incorrect_password"):
+            ratelimit.record_login_failure(request, user.email)
+    else:
+        form = DeleteAccountForm(user)
+
+    return render(request, "accounts/delete_account.html", {"form": form})

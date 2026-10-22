@@ -14,19 +14,30 @@
                 {{ form.non_field_errors }}
 
                 {% for field in form %}
+                    {% if field.name != 'consent' %}
                     <div class="form-field{% if field.errors %} has-error{% endif %}">
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                         {{ field }}
                         {% if field.help_text %}<span class="field-help">{{ field.help_text }}</span>{% endif %}
                         {% for error in field.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
                     </div>
+                    {% endif %}
                 {% endfor %}
+
+                <div class="form-field{% if form.consent.errors %} has-error{% endif %}">
+                    <label class="check" for="id_consent">
+                        <input type="checkbox" name="consent" id="id_consent" required{% if form.consent.value %} checked{% endif %}>
+                        <span>I am 18 or older and agree to the <a href="{% url 'core:terms' %}">Terms</a> and <a href="{% url 'core:privacy' %}">Privacy Policy</a></span>
+                    </label>
+                    {% for error in form.consent.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                </div>
 
                 <button type="submit" class="btn btn-primary">Create account</button>
             </form>
-            <p class="legal-note">By signing up you agree to the <a href="{% url 'core:terms' %}">Terms</a> and <a href="{% url 'core:privacy' %}">Privacy Policy</a>.</p>
+            <p class="legal-note">We store your email address and a hash of your password. The <a href="{% url 'core:privacy' %}">Privacy Policy</a> lists everything we keep and why.</p>
             <p class="auth-switch">Already have an account? <a href="{% url 'accounts:login' %}">Log in</a></p>
         </main>
+        <p class="auth-legal"><a href="{% url 'core:privacy' %}">Privacy Policy</a> <a href="{% url 'core:terms' %}">Terms</a> <a href="{% url 'core:cookies' %}">Cookies</a></p>
     </div>
     <aside class="auth-aside" aria-label="Privacy">
         <div>

@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.utils import timezone
 
 from .models import User
 
@@ -22,6 +23,14 @@ class SignupForm(forms.ModelForm):
         min_length=8,
         label="Password",
     )
+    consent = forms.BooleanField(
+        required=True,
+        label="I am 18 or older and agree to the Terms and Privacy Policy",
+        error_messages={
+            "required": "You must confirm that you are 18 or older and agree to the Terms "
+            "and Privacy Policy to create an account.",
+        },
+    )
 
     class Meta:
         model = User
@@ -37,6 +46,7 @@ class SignupForm(forms.ModelForm):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
         user.role = "ANALYST"
+        user.consented_at = timezone.now()  # proof of consent (DPDP Act 2023)
         if commit:
             user.save()
         return user
@@ -45,3 +55,23 @@ class SignupForm(forms.ModelForm):
 class LoginForm(forms.Form):
     email = forms.EmailField()
     password = forms.CharField(widget=forms.PasswordInput)
+
+
+class DeleteAccountForm(forms.Form):
+    """Two checks before an account is erased: the password, and an explicit tick."""
+
+    password = forms.CharField(widget=forms.PasswordInput, label="Your password")
+    confirm = forms.BooleanField(
+        label="I understand that this permanently deletes my account, datasets, rows and decisions",
+        error_messages={"required": "Tick the box to confirm that you want to delete your account."},
+    )
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean_password(self):
+        password = self.cleaned_data["password"]
+        if not self.user.check_password(password):
+            raise forms.ValidationError("That password is not correct.", code="incorrect_password")
+        return password

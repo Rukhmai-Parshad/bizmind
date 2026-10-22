@@ -1,0 +1,40 @@
+{% extends "base_app.html" %}
+{% block title %}Settings | BizMind{% endblock %}
+{% block crumbs %}<li><span aria-current="page">Settings</span></li>{% endblock %}
+{% block topbar_action %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Settings</h1>
+        <p class="muted">Your account and your data.</p>
+    </div>
+</div>
+
+<div class="settings-grid">
+    <section class="panel" aria-labelledby="account-title">
+        <p class="label">Account</p>
+        <h2 id="account-title">What we hold about you</h2>
+        <dl class="facts-list">
+            <div><dt>Email address</dt><dd>{{ user.email }}</dd></div>
+            <div><dt>Role</dt><dd>{{ user.role|title }}</dd></div>
+            <div><dt>Account created</dt><dd>{{ user.date_joined|date:"j F Y" }}</dd></div>
+            <div><dt>Consent given</dt><dd>{% if user.consented_at %}{{ user.consented_at|date:"j F Y, H:i" }} UTC, to the Terms and Privacy Policy{% else %}Not recorded. This account was created before consent was recorded.{% endif %}</dd></div>
+            <div><dt>Datasets</dt><dd>{{ dataset_count }}</dd></div>
+            <div><dt>Decisions</dt><dd>{{ decision_count }}</dd></div>
+        </dl>
+        <p class="small muted">To see or correct your data, or to ask for a copy of it, write to <a href="mailto:rukhmaiparshad@gmail.com">rukhmaiparshad@gmail.com</a>. Read the <a href="{% url 'core:privacy' %}">Privacy Policy</a>, the <a href="{% url 'core:terms' %}">Terms</a> and the <a href="{% url 'core:cookies' %}">Cookie Policy</a>.</p>
+    </section>
+
+    <section class="panel panel-danger" aria-labelledby="delete-title">
+        <p class="label">Danger zone</p>
+        <h2 id="delete-title">Delete your account</h2>
+        {% if can_delete %}
+            <p>This permanently deletes your account and all of your datasets, rows and decisions, and logs you out. It also withdraws your consent. It cannot be undone.</p>
+            <a class="btn btn-danger" href="{% url 'accounts:delete_account' %}">Delete my account</a>
+        {% else %}
+            <p>This is a staff account. Staff accounts cannot be deleted here, so that the site is never left without an administrator. Ask another administrator to remove it in the admin site.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

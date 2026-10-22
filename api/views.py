@@ -75,10 +75,10 @@ class DatasetViewSet(viewsets.ModelViewSet):
             save_and_process_dataset(dataset)
         except ValueError as exc:
             # A problem inside the CSV data, e.g. "units_sold must be greater than zero."
-            logger.warning("Dataset validation failed for %r: %s", dataset.name, exc)
+            logger.warning("Dataset validation failed (type=%s, user_id=%s): %s", dataset.type, self.request.user.pk, exc)
             raise serializers.ValidationError({"file": [str(exc)]})
         except Exception:
-            logger.exception("Dataset processing failed for %r", dataset.name)
+            logger.exception("Dataset processing failed (type=%s, user_id=%s)", dataset.type, self.request.user.pk)
             raise ProcessingFailed()
 
         serializer.instance = dataset

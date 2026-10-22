@@ -33,6 +33,17 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
 
+    # Data minimisation: BizMind never asks for a name and does not record login
+    # times, so these inherited columns are removed instead of left empty.
+    first_name = None
+    last_name = None
+    last_login = None
+
+    # When the person ticked "I am 18 or older and agree to the Terms and Privacy
+    # Policy" at signup. Null for accounts created before consent was recorded
+    # (and for accounts created in the admin or with createsuperuser).
+    consented_at = models.DateTimeField(null=True, blank=True)
+
     ROLE_CHOICES = (
         ("ADMIN", "Admin"),
         ("ANALYST", "Analyst"),

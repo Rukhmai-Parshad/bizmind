@@ -1,0 +1,52 @@
+{% extends "base_app.html" %}
+{% block title %}Delete account | BizMind{% endblock %}
+{% block crumbs %}
+    <li><a href="{% url 'accounts:settings' %}">Settings</a></li>
+    <li><span aria-current="page">Delete account</span></li>
+{% endblock %}
+{% block topbar_action %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>Delete your account</h1>
+        <p class="muted">Please read this before you confirm.</p>
+    </div>
+</div>
+
+<div class="narrow stack">
+    <section class="panel panel-muted">
+        <h2>What will be deleted</h2>
+        <ul class="plain-list">
+            <li>Your account: email address, password hash, role and consent record.</li>
+            <li>All your datasets, the parsed rows and every decision generated from them.</li>
+            <li>Your login sessions on every device, and any API refresh token records.</li>
+        </ul>
+        <p class="small muted">This cannot be undone. Copies held in hosting backups, if any, are outside our control and expire on the provider's schedule.</p>
+    </section>
+
+    <form method="post" class="panel" data-loading-text="Deleting...">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-field{% if form.password.errors %} has-error{% endif %}">
+            <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+            {{ form.password }}
+            {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="form-field{% if form.confirm.errors %} has-error{% endif %}">
+            <label class="check" for="id_confirm">
+                <input type="checkbox" name="confirm" id="id_confirm" required>
+                <span>{{ form.confirm.label }}</span>
+            </label>
+            {% for error in form.confirm.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn-danger">Delete my account</button>
+            <a class="btn" href="{% url 'accounts:settings' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -66,7 +66,7 @@ class SignupTests(TestCase):
     def test_signup_creates_an_analyst_and_redirects_to_login(self):
         response = self.client.post(
             "/accounts/signup/",
-            {"email": "New@Example.com", "password": "longenough1"},
+            {"email": "New@Example.com", "password": "longenough1", "consent": "on"},
         )
         self.assertRedirects(response, "/accounts/login/", fetch_redirect_response=False)
         self.assertIn(
@@ -79,7 +79,7 @@ class SignupTests(TestCase):
     def test_role_sent_by_the_client_is_ignored(self):
         self.client.post(
             "/accounts/signup/",
-            {"email": "sneaky@example.com", "password": "longenough1", "role": "ADMIN"},
+            {"email": "sneaky@example.com", "password": "longenough1", "role": "ADMIN", "consent": "on"},
         )
         user = User.objects.get(email="sneaky@example.com")
         self.assertEqual(user.role, "ANALYST")
@@ -113,7 +113,7 @@ class SignupTests(TestCase):
         # only checks length. A very common, all-numeric password is accepted.
         response = self.client.post(
             "/accounts/signup/",
-            {"email": "weak@example.com", "password": "12345678"},
+            {"email": "weak@example.com", "password": "12345678", "consent": "on"},
         )
         self.assertRedirects(response, "/accounts/login/", fetch_redirect_response=False)
         self.assertTrue(User.objects.filter(email="weak@example.com").exists())

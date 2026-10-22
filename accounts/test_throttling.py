@@ -98,7 +98,7 @@ class SignupRateLimitTests(RealCacheMixin, TestCase):
     def signup(self, number, ip="10.0.0.1"):
         return self.client.post(
             "/accounts/signup/",
-            {"email": f"user{number}@example.com", "password": "longenough1"},
+            {"email": f"user{number}@example.com", "password": "longenough1", "consent": "on"},
             REMOTE_ADDR=ip,
         )
 
