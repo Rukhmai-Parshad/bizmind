@@ -22,6 +22,7 @@ class CustomUserAdmin(BaseUserAdmin):
             return False
         return request.user.is_superuser or request.user.role == 'ADMIN'
 
+    readonly_fields = ('consented_at', 'date_joined')
     list_display = ('email', 'role', 'is_active', 'is_staff')
     ordering = ('email',)
     search_fields = ('email',)
@@ -36,6 +37,7 @@ class CustomUserAdmin(BaseUserAdmin):
                 'is_superuser',
             )
         }),
+        ('Consent record', {'fields': ('consented_at', 'date_joined')}),
     )
 
     add_fieldsets = (

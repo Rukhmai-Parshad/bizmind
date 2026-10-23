@@ -6,46 +6,92 @@
     <article class="prose">
         <p class="label">Legal</p>
         <h1>Privacy Policy</h1>
-        <p class="updated">Last updated: 18 October 2026</p>
+        <p class="updated">Last updated: 20 October 2026</p>
 
-        <p>This policy explains what data BizMind handles and why. BizMind is run by Rukhmai Parshad. For any question about your data, write to rukhmaiparshad@gmail.com.</p>
+        <p>BizMind is run by Rukhmai Parshad, who decides why and how your personal data is processed. Under the Digital Personal Data Protection Act, 2023 (the DPDP Act) that makes Rukhmai Parshad the Data Fiduciary and you the Data Principal. This page explains what BizMind collects, why, for how long, and what you can do about it. Questions and complaints go to <a href="mailto:rukhmaiparshad@gmail.com">rukhmaiparshad@gmail.com</a>.</p>
 
-        <h2>What we collect</h2>
+        <h2>Who this service is for</h2>
+        <p>BizMind is for people aged 18 or over. When you sign up, you confirm that you are 18 or older. We do not check your age, and we will delete an account if we learn that it belongs to someone under 18.</p>
+
+        <h2>Why we process your data</h2>
         <ul>
-            <li><strong>Account data:</strong> your email address, your password (stored only as a salted hash, never as plain text) and your role (admin, analyst or viewer).</li>
-            <li><strong>Datasets:</strong> the name and type you give each dataset, the upload date, and the rows parsed from your CSV file (sales, marketing or finance records).</li>
-            <li><strong>Decisions:</strong> the decisions the rules generate from your rows.</li>
-            <li><strong>Sessions and tokens:</strong> a session identifier while you are logged in. If you use the API, the server keeps a record of the refresh tokens it issues so that they can be revoked.</li>
+            <li>To create your account and let you log in.</li>
+            <li>To read the CSV file you upload and generate decisions from it.</li>
+            <li>To keep the service secure, for example by slowing down repeated login attempts.</li>
+            <li>To contact you about your account, including if a data breach affects you.</li>
         </ul>
+        <p>We do not use your data for marketing, advertising, profiling or selling. BizMind sends no emails by itself. If we write to you, it is a message from Rukhmai Parshad to the address on your account.</p>
 
-        <h2>Uploaded CSV files</h2>
-        <p>The file you upload is stored only long enough to be read. It is deleted once processing has finished, and it is also deleted if processing fails. The parsed rows and the decisions stay in your account.</p>
+        <h2>What we collect, and why</h2>
+        <table class="data-table">
+            <thead>
+                <tr><th scope="col">Data</th><th scope="col">Why we need it</th><th scope="col">How long we keep it</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Email address</td><td>To log you in and to contact you about your account.</td><td>Until you delete your account.</td></tr>
+                <tr><td>Password</td><td>To check it when you log in. Stored only as a salted hash, never as plain text.</td><td>Until you delete your account.</td></tr>
+                <tr><td>Role (admin, analyst or viewer)</td><td>To decide what you may do. New accounts are analysts.</td><td>Until you delete your account.</td></tr>
+                <tr><td>Consent record: the date and time you agreed to the Terms and Privacy Policy</td><td>As proof of your consent. Accounts created before this was added have no consent time.</td><td>Until you delete your account.</td></tr>
+                <tr><td>Account creation date</td><td>To keep the account record complete and to tell older accounts apart.</td><td>Until you delete your account.</td></tr>
+                <tr><td>Dataset name, type, upload date and processing status</td><td>To list your datasets.</td><td>Until you delete the account.</td></tr>
+                <tr><td>The rows parsed from your CSV file (sales, marketing or finance records)</td><td>To generate decisions and show them to you.</td><td>Until you delete the account.</td></tr>
+                <tr><td>Decisions generated from your rows</td><td>To show you what to do next.</td><td>Until you delete the account.</td></tr>
+                <tr><td>Login session record: a session key, its expiry time and your user number</td><td>To keep you logged in.</td><td>Up to 14 days from login, or until you log out. Expired records are cleared at each deployment.</td></tr>
+                <tr><td>API refresh token records, if you use the API: token identifier, your user number, issue and expiry time</td><td>To let tokens be rotated and revoked.</td><td>7 days. Expired records are cleared at each deployment.</td></tr>
+                <tr><td>Login and sign up counters: a hash of your email address and IP address</td><td>To slow down password guessing and mass sign ups.</td><td>15 minutes for logins and one hour for sign ups, kept in server memory only.</td></tr>
+                <tr><td>Application error logs: the dataset type, your user number and the error text</td><td>To fix problems. They do not include dataset names or file contents.</td><td>Set by the hosting provider.</td></tr>
+            </tbody>
+        </table>
+        <p>Your hosting provider also keeps standard request logs, which can include your IP address, the page requested and the time. We do not control how long the provider keeps them.</p>
+
+        <h2>What we do not collect</h2>
+        <p>BizMind does not ask for your name, phone number, address, date of birth, location or payment details, and it does not record when you last logged in. It uses no analytics, advertising or tracking.</p>
+
+        <h2>Personal data inside your CSV files</h2>
+        <p>BizMind only needs business figures such as dates, products, regions, spend and revenue. Please leave out personal data about other people, such as customer names, phone numbers or email addresses. If a file contains such data, BizMind will store it with your rows until you delete your account.</p>
+
+        <h2>The uploaded file itself</h2>
+        <p>The file you upload is stored only long enough to be read. It is deleted once processing has finished, and it is also deleted if processing fails.</p>
+
+        <h2>Where your data is stored</h2>
+        <p>The BizMind web service and its database run on Render, in its Singapore region. This means your data is stored outside India.</p>
 
         <h2>Who can see your data</h2>
-        <p>Inside the app and the API, every dataset, row and decision is limited to the account that uploaded it. The site administrator can also view stored data through the administration interface, for support and maintenance.</p>
-
-        <h2>Cookies</h2>
         <ul>
-            <li><strong>Session cookie:</strong> keeps you logged in.</li>
-            <li><strong>CSRF cookie:</strong> protects forms from forged requests.</li>
-            <li><strong>Messages cookie:</strong> may carry a short notice to the next page, for example that you have been logged out.</li>
+            <li>You. Inside the app and the API, every dataset, row and decision is limited to the account that uploaded it.</li>
+            <li>The site administrator, through the administration interface, for support and maintenance.</li>
+            <li>The hosting provider, which runs the servers and the database on which the data is stored.</li>
         </ul>
-        <p>There are no analytics cookies, advertising cookies or tracking pixels.</p>
+        <p>BizMind loads no third party scripts, fonts, analytics or advertising, and the code contains nothing that shares your data with advertisers or analytics services.</p>
 
-        <h2>Third parties</h2>
-        <p>BizMind loads no third party scripts, fonts, analytics or advertising. The code contains nothing that shares your data with advertisers or analytics services.</p>
+        <h2>Your consent</h2>
+        <p>We process your account data with your consent, which you give by ticking the box when you sign up. You can withdraw it at any time: delete your account in Settings, or write to <a href="mailto:rukhmaiparshad@gmail.com">rukhmaiparshad@gmail.com</a>. Withdrawing consent means we can no longer provide the service to you, and your data is erased as described below.</p>
 
-        <h2>Protection against password guessing</h2>
-        <p>To slow down repeated login and sign up attempts, the server keeps short lived counters in memory: 15 minutes for logins and one hour for sign ups. They are keyed by a hash of your email address and your IP address.</p>
+        <h2>Your rights</h2>
+        <ul>
+            <li><strong>Access:</strong> you can see your account details, datasets and decisions in the app, and the API lists your parsed rows. For a summary of all the personal data we hold about you, write to us.</li>
+            <li><strong>Correction:</strong> write to us to correct your email address or other account details. To correct data in a file, upload a corrected file as a new dataset.</li>
+            <li><strong>Erasure:</strong> open Settings and choose Delete my account. It needs your password and a confirmation, deletes your account, datasets, rows and decisions at once, and logs you out. You can also ask us to do it.</li>
+            <li><strong>Grievance:</strong> if you have a complaint about how your data is handled, write to <a href="mailto:rukhmaiparshad@gmail.com">rukhmaiparshad@gmail.com</a>. If you are not satisfied with our reply, you may complain to the Data Protection Board of India under the DPDP Act.</li>
+        </ul>
 
         <h2>Retention and deletion</h2>
-        <p>Your account, rows and decisions are kept until you ask for them to be deleted. To request deletion, write to rukhmaiparshad@gmail.com. Deleting an account also deletes its datasets, rows and decisions.</p>
+        <p>We keep your account, rows and decisions until you delete your account or ask us to. Deleting your account removes them from the BizMind database straight away, together with your login sessions and API token records. If the hosting provider keeps backups, deleted data may remain in them until they expire. The short lived counters and the provider's logs described above expire on their own schedule.</p>
+
+        <h2>If there is a data breach</h2>
+        <p>If a personal data breach affects your data, we will email you at the address on your account, without delay. The message will say what happened, what data was involved, what we are doing about it and what you can do. We will also report the breach to the Data Protection Board of India as the law requires.</p>
+
+        <h2>How we protect your data</h2>
+        <p>Passwords are stored as salted hashes. In production the site redirects to HTTPS, marks its cookies as Secure and sends a strict transport security header. Access to every dataset is checked against the account that owns it. No system is perfectly secure, so please use a password that you do not use elsewhere.</p>
+
+        <h2>Cookies</h2>
+        <p>BizMind uses only the cookies it needs to work. They are listed in the <a href="{% url 'core:cookies' %}">Cookie Policy</a>.</p>
 
         <h2>Changes to this policy</h2>
         <p>If this policy changes, the date at the top of this page changes with it.</p>
 
-        <h2>Contact</h2>
-        <p>Rukhmai Parshad, rukhmaiparshad@gmail.com.</p>
+        <h2>Contact and grievance officer</h2>
+        <p>Rukhmai Parshad, <a href="mailto:rukhmaiparshad@gmail.com">rukhmaiparshad@gmail.com</a>.</p>
     </article>
 </div>
 {% endblock %}

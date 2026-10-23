@@ -1,0 +1,41 @@
+{% extends "base_public.html" %}
+{% block title %}Cookie Policy | BizMind{% endblock %}
+
+{% block main %}
+<div class="wrap">
+    <article class="prose">
+        <p class="label">Legal</p>
+        <h1>Cookie Policy</h1>
+        <p class="updated">Last updated: 20 October 2026</p>
+
+        <p>BizMind sets three cookies. All three are needed for the site to work, so it does not show a cookie banner. This page lists each one. The <a href="{% url 'core:privacy' %}">Privacy Policy</a> explains the rest of the data we handle.</p>
+
+        <h2>The cookies</h2>
+        <table class="data-table">
+            <thead>
+                <tr><th scope="col">Name</th><th scope="col">Purpose</th><th scope="col">Lasts</th><th scope="col">When it is set</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>sessionid</code></td><td>Keeps you logged in. It holds a random identifier, not your email or password.</td><td>14 days from login, or until you log out.</td><td>When you log in.</td></tr>
+                <tr><td><code>csrftoken</code></td><td>Protects forms, such as login and logout, from forged requests made by other websites.</td><td>364 days.</td><td>When a page with a form is shown.</td></tr>
+                <tr><td><code>messages</code></td><td>Carries a short notice to the next page, for example that you have been logged out.</td><td>Until you close the browser, and it is removed as soon as the notice has been shown.</td><td>Only when a notice needs to be shown.</td></tr>
+            </tbody>
+        </table>
+        <p>All three are first party cookies set by BizMind. They are sent only to BizMind, use the SameSite Lax setting, and are marked Secure on the live site, so they travel only over HTTPS. The session and messages cookies are also HttpOnly, which hides them from scripts on the page.</p>
+
+        <h2>What we do not use</h2>
+        <ul>
+            <li>No analytics cookies and no advertising cookies.</li>
+            <li>No tracking pixels, fingerprinting or third party cookies.</li>
+            <li>No browser storage such as local storage.</li>
+        </ul>
+        <p>If you use the API, you receive JWT tokens in the response. Your own software keeps them. They are not cookies.</p>
+
+        <h2>Your choices</h2>
+        <p>You can delete these cookies in your browser settings at any time. If you block them, you will not be able to log in or submit forms.</p>
+
+        <h2>Contact</h2>
+        <p>Rukhmai Parshad, <a href="mailto:rukhmaiparshad@gmail.com">rukhmaiparshad@gmail.com</a>.</p>
+    </article>
+</div>
+{% endblock %}

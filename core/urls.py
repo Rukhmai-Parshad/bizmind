@@ -9,5 +9,6 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("privacy/", TemplateView.as_view(template_name="core/privacy.html"), name="privacy"),
     path("terms/", TemplateView.as_view(template_name="core/terms.html"), name="terms"),
+    path("cookies/", TemplateView.as_view(template_name="core/cookies.html"), name="cookies"),
     path("favicon.ico", views.favicon, name="favicon"),
 ]

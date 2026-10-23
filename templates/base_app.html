@@ -15,6 +15,7 @@
                 {% if user.is_admin or user.is_analyst %}
                     <li><a class="side-link" href="{% url 'datasets:upload' %}"{% if request.resolver_match.url_name == 'upload' %} aria-current="page"{% endif %}>{% include "icons/upload.html" %}<span class="side-label">Upload</span></a></li>
                 {% endif %}
+                <li><a class="side-link" href="{% url 'accounts:settings' %}"{% if request.resolver_match.app_name == 'accounts' %} aria-current="page"{% endif %}>{% include "icons/settings.html" %}<span class="side-label">Settings</span></a></li>
             </ul>
         </nav>
         <div class="side-foot">
@@ -51,6 +52,7 @@
         <footer class="app-footer">
             <a href="{% url 'core:privacy' %}">Privacy Policy</a>
             <a href="{% url 'core:terms' %}">Terms</a>
+            <a href="{% url 'core:cookies' %}">Cookies</a>
             <a href="/api/docs/">API docs</a>
         </footer>
     </div>

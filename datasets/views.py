@@ -63,10 +63,10 @@ def upload_dataset(request):
                 save_and_process_dataset(dataset)
 
             except ValueError as exc:
-                logger.warning("Dataset validation failed for %r: %s", dataset.name, exc)
+                logger.warning("Dataset validation failed (type=%s, user_id=%s): %s", dataset.type, request.user.pk, exc)
                 messages.error(request, f"Dataset could not be processed: {exc}")
             except Exception:
-                logger.exception("Dataset processing failed for %r", dataset.name)
+                logger.exception("Dataset processing failed (type=%s, user_id=%s)", dataset.type, request.user.pk)
                 messages.error(
                     request,
                     "The dataset could not be processed because of an unexpected error. "

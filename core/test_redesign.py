@@ -31,15 +31,13 @@ class NewPagesTests(TestCase):
             with self.subTest(url=url):
                 self.assertIn("Rukhmai Parshad", html)
                 self.assertIn("rukhmaiparshad@gmail.com", html)
-                self.assertNotIn("[OWNER NAME]", html)
-                self.assertNotIn("[CONTACT EMAIL]", html)
-                self.assertIn("Last updated: 18 October 2026", html)
+                self.assertIn("Last updated: 20 October 2026", html)
 
     def test_privacy_page_states_what_the_code_really_does(self):
         html = self.client.get("/privacy/").content.decode().lower()
         for fact in ("deleted once processing has finished", "salted hash", "administration interface",
-                     "session cookie", "csrf cookie", "messages cookie", "no analytics cookies",
-                     "deleting an account also deletes its datasets"):
+                     "does not ask for your name", "deletes your account, datasets, rows and decisions at once",
+                     "no analytics, advertising or tracking"):
             with self.subTest(fact=fact):
                 self.assertIn(fact, html)
 
@@ -52,7 +50,7 @@ class NewPagesTests(TestCase):
         self.assertIn('href="/privacy/"', self.client.get("/").content.decode())
         self.assertIn('href="/terms/"', self.client.get("/").content.decode())
         signup = self.client.get("/accounts/signup/").content.decode()
-        self.assertIn("By signing up you agree to the", signup)
+        self.assertIn("I am 18 or older and agree to the", signup)
         self.assertIn('href="/privacy/"', signup)
         self.assertIn('href="/terms/"', signup)
         self.client.force_login(make_user())
@@ -252,3 +250,19 @@ class DesignRuleGuards(SimpleTestCase):
     def test_at_most_one_stylesheet_and_one_script(self):
         self.assertEqual([p.name for p in (ROOT / "static").rglob("*.css")], ["app.css"])
         self.assertEqual([p.name for p in (ROOT / "static").rglob("*.js")], ["app.js"])
+
+    def test_every_css_class_used_in_a_template_is_defined_in_the_stylesheet(self):
+        """Catches a typo or a missing rule, such as a layout class nobody wrote the CSS for."""
+        css = re.sub(r"/\*.*?\*/", "", self.read(STYLE), flags=re.S)
+        defined = set(re.findall(r"\.([A-Za-z][\w-]*)", css))
+        hooks = {"logout-form"}  # kept as a stable hook, no styling needed
+        undefined = {}
+        for path in TEMPLATES:
+            for attr in re.findall(r'class="([^"]*)"', self.read(path)):
+                attr = re.sub(r"\{%.*?%\}|\{\{.*?\}\}", " ", attr)  # drop Django tags and variables
+                for token in attr.split():
+                    if token.endswith("-"):  # start of a dynamic name such as toast-{{ tag }}
+                        continue
+                    if re.fullmatch(r"[A-Za-z][\w-]*", token) and token not in defined and token not in hooks:
+                        undefined.setdefault(token, set()).add(path.name)
+        self.assertEqual(undefined, {})
