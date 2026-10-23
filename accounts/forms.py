@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
+from django.contrib.auth.password_validation import validate_password
 from django.utils import timezone
 
 from .models import User
@@ -41,6 +42,19 @@ class SignupForm(forms.ModelForm):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("An account with this email already exists.")
         return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        if password:
+            # Same rules as AUTH_PASSWORD_VALIDATORS in settings (length, common
+            # passwords, all digits, too similar to the email).
+            email = cleaned_data.get("email") or self.data.get("email", "").strip().lower()
+            try:
+                validate_password(password, user=User(email=email))
+            except forms.ValidationError as error:
+                self.add_error("password", error)
+        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)

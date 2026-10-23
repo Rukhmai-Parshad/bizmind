@@ -108,15 +108,17 @@ class SignupTests(TestCase):
         self.assertIn("password", response.context["form"].errors)
         self.assertFalse(User.objects.filter(email="short@example.com").exists())
 
-    def test_django_password_validators_are_not_applied_today(self):
-        # docs/03_App_Flow.md says "min 8 plus Django validators", but the form
-        # only checks length. A very common, all-numeric password is accepted.
+    def test_django_password_validators_are_applied(self):
+        # Changed on purpose in SEC-1: the signup form now runs
+        # AUTH_PASSWORD_VALIDATORS, so a very common, all-numeric password is
+        # rejected. More cases: accounts/test_sec1_accounts.py.
         response = self.client.post(
             "/accounts/signup/",
             {"email": "weak@example.com", "password": "12345678", "consent": "on"},
         )
-        self.assertRedirects(response, "/accounts/login/", fetch_redirect_response=False)
-        self.assertTrue(User.objects.filter(email="weak@example.com").exists())
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("password", response.context["form"].errors)
+        self.assertFalse(User.objects.filter(email="weak@example.com").exists())
 
 
 class LogoutTests(TestCase):

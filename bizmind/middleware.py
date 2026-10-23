@@ -1,4 +1,4 @@
-"""Content-Security-Policy header (audit S8).
+"""Content-Security-Policy (audit S8) and Permissions-Policy (audit SEC-1) headers.
 
 Django 5.2 has no built-in CSP, so this tiny middleware adds the header.
 The policy itself is the CONTENT_SECURITY_POLICY dict in settings.py.
@@ -23,4 +23,23 @@ class ContentSecurityPolicyMiddleware:
         # A view that sets its own CSP wins; everything else gets the default.
         if "Content-Security-Policy" not in response:
             response["Content-Security-Policy"] = build_csp_header()
+        return response
+
+
+def build_permissions_policy_header(policy=None):
+    """Turn {"camera": [], "fullscreen": ["self"]} into "camera=(), fullscreen=(self)"."""
+    policy = settings.PERMISSIONS_POLICY if policy is None else policy
+    return ", ".join(
+        f"{feature}=({' '.join(origins)})" for feature, origins in policy.items()
+    )
+
+
+class PermissionsPolicyMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if "Permissions-Policy" not in response:
+            response["Permissions-Policy"] = build_permissions_policy_header()
         return response
