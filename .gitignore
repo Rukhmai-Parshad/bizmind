@@ -6,6 +6,11 @@ __pycache__/
 *.sqlite3
 staticfiles/
 media/
+.env.*
+!.env.example
+*.pem
+*.key
+*.log
 .DS_Store
 .vscode/
 .idea/

@@ -24,6 +24,10 @@ LOGIN_MAX_FAILURES_PER_EMAIL = 20
 SIGNUP_WINDOW_SECONDS = 60 * 60
 SIGNUP_MAX_POSTS_PER_IP = 10
 
+ADMIN_LOGIN_WINDOW_SECONDS = 15 * 60
+ADMIN_LOGIN_MAX_FAILURES_PER_IP = 10
+ADMIN_LOGIN_MAX_FAILURES_PER_USERNAME = 10
+
 LOGIN_BLOCKED_MESSAGE = "Too many failed login attempts. Please wait 15 minutes and try again."
 SIGNUP_BLOCKED_MESSAGE = "Too many sign-up attempts from this address. Please try again later."
 
@@ -92,3 +96,24 @@ def reset_login_failures(request, email):
 def signup_is_blocked(request):
     """Count this signup POST and say whether the IP is now over its limit."""
     return _hit(_key("signup", client_ip(request)), SIGNUP_WINDOW_SECONDS) > SIGNUP_MAX_POSTS_PER_IP
+
+
+def _admin_login_keys(request, username):
+    return (
+        (_key("admin-login-ip", client_ip(request)), ADMIN_LOGIN_MAX_FAILURES_PER_IP),
+        (_key("admin-login-user", username.strip().lower()), ADMIN_LOGIN_MAX_FAILURES_PER_USERNAME),
+    )
+
+
+def admin_login_is_blocked(request, username):
+    return any(cache.get(key, 0) >= limit for key, limit in _admin_login_keys(request, username))
+
+
+def record_admin_login_failure(request, username):
+    for key, _limit in _admin_login_keys(request, username):
+        _hit(key, ADMIN_LOGIN_WINDOW_SECONDS)
+
+
+def reset_admin_login_failures(request, username):
+    """After a successful admin login forget the failures for that account only."""
+    cache.delete(_admin_login_keys(request, username)[1][0])

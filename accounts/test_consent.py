@@ -7,6 +7,7 @@ from django.core.management import call_command
 from django.db.migrations.loader import MigrationLoader
 from django.db import connection
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 from rest_framework.test import APIClient
 
@@ -120,9 +121,9 @@ class DataMinimisationTests(TempMediaMixin, TestCase):
 
     def test_admin_login_still_works_for_staff(self):
         User.objects.create_superuser(email="root@example.com", password=PASSWORD)
-        response = self.client.post("/admin/login/", {"username": "root@example.com", "password": PASSWORD})
+        response = self.client.post(reverse("admin:login"), {"username": "root@example.com", "password": PASSWORD})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.client.get("/admin/").status_code, 200)
+        self.assertEqual(self.client.get(reverse("admin:index")).status_code, 200)
 
     def test_the_api_user_object_has_no_name_fields(self):
         user = make_user("owner@example.com")

@@ -1,5 +1,8 @@
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
+
+from accounts.admin_security import rate_limited_admin_login
 
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -29,7 +32,10 @@ urlpatterns = [
     # =========================
     # Admin
     # =========================
-    path("admin/", admin.site.urls),
+    # The path comes from settings.ADMIN_URL (default "site-admin/"). The login
+    # URL is listed first so failed admin logins are counted and limited.
+    path(f"{settings.ADMIN_URL}login/", rate_limited_admin_login),
+    path(settings.ADMIN_URL, admin.site.urls),
 
     # =========================
     # API

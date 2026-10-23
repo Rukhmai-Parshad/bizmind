@@ -12,7 +12,7 @@ A Django web app and REST API. A user uploads a sales, marketing or finance CSV.
 ## 2. Stack
 Python 3.13.5, Django 5.2.9, Django REST Framework, SimpleJWT (with token blacklist), drf-spectacular plus drf-spectacular-sidecar (Swagger served from /static/), pandas, WhiteNoise, gunicorn. PostgreSQL on Render (DATABASE_URL), SQLite locally. No Vite, no React, no Tailwind, no JS framework.
 
-Deploy: `render.yaml` and `build.sh` (collectstatic, migrate). Environment variables read by settings: SECRET_KEY (required), DEBUG, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, DATABASE_URL, NUM_PROXIES (set to 1 on Render), RENDER_EXTERNAL_HOSTNAME. See `.env.example`.
+Deploy: `render.yaml` and `build.sh` (collectstatic, migrate). Environment variables read by settings (SEC-1 added ADMIN_URL, DATABASE_SSL_REQUIRE, HSTS_SECONDS; the admin now lives at /site-admin/ by default; DATABASE_URL is required when DEBUG is off): SECRET_KEY (required), DEBUG, ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS, DATABASE_URL, NUM_PROXIES (set to 1 on Render), RENDER_EXTERNAL_HOSTNAME. See `.env.example`.
 
 ## 3. Apps and key files
 - `accounts`: custom User (email is the login, roles ADMIN / ANALYST / VIEWER, signup sets ANALYST), login/signup/logout views, `ratelimit.py`.
@@ -43,7 +43,7 @@ Deploy: `render.yaml` and `build.sh` (collectstatic, migrate). Environment varia
 - Do not add: dark mode, cookie banner (unless a real need is found), analytics, UTM tracking, loading animations, scroll progress bar, floating contact button, refund policy (no payments), LocalBusiness schema, site-wide search.
 
 ## 6. Known open items
-- Signup does not apply Django's password validators.
+- Signup password validators: fixed in SEC-1 (see docs/SECURITY_AUDIT.md).
 - TIME_ZONE is UTC.
 - Throttle counters use a local-memory cache, so they assume one gunicorn worker.
 - PATCH or PUT of a dataset with a file stores a CSV that is never processed or deleted.
