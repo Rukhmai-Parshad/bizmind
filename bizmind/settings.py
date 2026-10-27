@@ -332,3 +332,19 @@ SPECTACULAR_SETTINGS = {
 
 # Used only by "manage.py test": temporary MEDIA_ROOT and test-safe settings.
 TEST_RUNNER = "bizmind.test_runner.BizMindTestRunner"
+
+
+
+
+# Make unhandled errors visible in the hosting logs (Django prints nothing for them when DEBUG is off).
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {"class": "logging.StreamHandler"},
+    },
+    "loggers": {
+        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+        "django.security": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+    },
+}
